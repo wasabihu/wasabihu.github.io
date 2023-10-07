@@ -1,0 +1,153 @@
+@charset "utf-8";
+@import url("topmenu.css");
+
+*{padding:0px;margin:0px;font-family:Verdana, Arial, Helvetica, sans-serif;}
+.cbody{width:930px;margin:0 auto;font-size:12px;} /**/
+
+/*-----------头部*/
+.top{height:88px;overflow:hidden;}
+
+.toplogo{float:left;margin-top:14px;width:200px;}
+.topbanner{float:left;margin-left:20px;width:480px;	margin-top:14px;}
+
+.toplink{float:left;margin-top:14px;margin-left:20px;width:180px;}
+
+.toplink ul li{float:left;width:90px;height:30px;line-height:30px;text-align:center;}
+
+
+.table_style{float:left; margin:0 5px;width:350px; height:480px; margin-top:5px;  padding:5px 3px;}
+.table_style tr.over td {background:#FEF3D1; }	/*这个将是鼠标高亮行的背景色*/
+
+.table_style2{width:280px;height:250px;border:2px solid #666666;}
+
+DIV#content{margin:0 auto; width:1010px;}
+
+
+ul{list-style:none;}
+img{border:0px;}
+
+body{
+font-size:14px;
+scrollbar-face-color:cdcdcd;
+scrollbar-shadow-color:ffffff;
+scrollbar-highlight-color:ffffff;
+scrollbar-3dlight-color:ffffff;
+scrollbar-darkshadow-color:ffffff;
+scrollbar-track-color:ffffff;
+scrollbar-arrow-color:ffffff;
+background-color:  #F3F1E5;
+}
+
+#page{}
+
+a { color: #0000CC;text-decoration: underline; line-height:2em;}
+a:hover, a:active {color: white; background-color: #FF0000; font-style: inherit;text-decoration: none;}
+a:visited{color: #006699;text-decoration: none;}
+
+TD{	FONT-SIZE:12px}
+P{	FONT-SIZE:14px}
+
+
+TD{	TABLE-LAYOUT:fixed;WORD-BREAK:break-all; width:210px;}
+
+.border{
+background-color:#efefef;
+
+BORDER-BOTTOM:#111111 1px dotted;
+BORDER-COLLAPSE:collapse;
+BORDER-LEFT:#111111 1px dotted;
+BORDER-RIGHT:#111111 1px dotted;
+BORDER-TOP:#111111 1px dotted;COLOR:#000000}
+
+.time{	FONT-FAMILY:Arial;FONT-SIZE:11px}
+.shadow1{	COLOR:#000000;FILTER:dropshadow(color=#d5d5d5,offx=1,offy=1);FONT-SIZE:12px}
+.shadow2{	COLOR:#ffffff;FILTER:dropshadow(color=#111111,offx=1,offy=1);FONT-SIZE:12px}
+.p1{	COLOR:#d60303;FONT-SIZE:12px;TEXT-DECORATION:none}
+.p2{	COLOR:#ffffff;FONT-SIZE:12px;TEXT-DECORATION:none}
+.p3{	COLOR:#ff0000;FONT-SIZE:12px;TEXT-DECORATION:none}
+.p4{	COLOR:#007cd3;FONT-SIZE:12px;TEXT-DECORATION:none}
+
+.link_item{width:540px; clear: both; margin:0 0 40px 0;}
+
+.hyplink{text-align: left;}
+
+.edit_link{display:none;}
+
+/************User **************************/
+.userinfo .user_head {
+    margin-bottom: 18px;
+    margin-left: 5px;
+    margin-right: 0;
+    margin-top: 0;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+.userinfo .user_head .picborder_r {
+    margin-top: 6px;
+}
+.userinfo .user_head .picborder_r {
+    margin-right: 10px;
+}
+
+.picborder_r {
+    border-bottom-color: #FFFFFF;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-left-color-ltr-source: physical;
+    border-left-color-rtl-source: physical;
+    border-left-color-value: #FFFFFF;
+    border-left-style-ltr-source: physical;
+    border-left-style-rtl-source: physical;
+    border-left-style-value: solid;
+    border-left-width-ltr-source: physical;
+    border-left-width-rtl-source: physical;
+    border-left-width-value: 1px;
+    border-right-color-ltr-source: physical;
+    border-right-color-rtl-source: physical;
+    border-right-color-value: #FFFFFF;
+    border-right-style-ltr-source: physical;
+    border-right-style-rtl-source: physical;
+    border-right-style-value: solid;
+    border-right-width-ltr-source: physical;
+    border-right-width-rtl-source: physical;
+    border-right-width-value: 1px;
+    border-top-color: #FFFFFF;
+    border-top-style: solid;
+    border-top-width: 1px;
+}
+
+#pop_1{margin-right:15px;}
+.picborder_r img {
+    display: block;
+    height: 50px;
+    width: 50px;
+}
+
+.lf {
+    float: left;
+}
+
+p.font_14 {
+    padding-bottom: 4px;
+}
+.userinfo .user_head p.font_14 {
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.userinfo .user_head p {
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 4px;
+}
+
+
+.t_right{text-align: right; margin-top:10px;}
+
+/***jQuery UI**/
+.ui-tabs-panel {
+    background-color: #fff; /*#F3F1E5*/
+   
+}
