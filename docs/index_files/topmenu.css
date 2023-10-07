@@ -1,0 +1,22 @@
+@charset "utf-8";
+
+/*----------dedecms栏目菜单*/
+.topmenu{height:40px;background:url(../images/topmenu/topmenu_bg.gif) left top repeat-x;}
+
+.topmenu ul{width:900px;height:40px;background:url(../images/topmenu/topmenu_r.gif) top center no-repeat;overflow:hidden;}
+
+.topmenu ul li{float:left;margin-left:-2px;text-align:center;
+	background:url(../images/topmenu/topmenu_bg.gif) left bottom no-repeat;}
+
+.topmenu  ul li.funs a{color:PapayaWhip;}  /*SpringGreen*/
+	
+.topmenu ul li a{float:left;color:#FFFFFF;display:block;padding-left:17px;padding-right:15px;
+	text-decoration:none;height:40px;line-height:37px;}
+	
+.topmenu ul li a:hover{color:#FFFF99;background:url(../images/topmenu/topmenu_o.gif) center bottom no-repeat;}
+.topmenu ul li a.thisclass{color:#FFFF99;background:url(../images/topmenu/topmenu_o.gif) center bottom no-repeat;}
+.topmenu .rssbut{position:relative;float:right;margin:-30px 8px auto;display:inline;}
+
+.topmenu  ul li.spece{margin-left:85px;}
+
+
