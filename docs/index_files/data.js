@@ -1,40 +1,220 @@
 var initialCategories = [
-    { id: "4", name: "社交SNS" },
-    { id: "18043", name: "eolinker日常" },
-    { id: "18045", name: "本地服务" },
-    { id: "18039", name: "文档" },
-    { id: "1", name: "Github" },
-    { id: "319", name: "股票" },
-    { id: "188044", name: "Go语言" },
-    { id: "8", name: "Web服务" },
-    { id: "12", name: "网上商城" },
-    { id: "7", name: "在线观看/视频下载" },
-    { id: "18041", name: "openResty" },
-    { id: "5", name: "常去網站" },
-    { id: "15249", name: "关注博客" },
-    { id: "13", name: "安全" },
-    { id: "2", name: "web工具网" },
-    { id: "3", name: "前端开发" },
-    { id: "10", name: "PHP技术网" },
-    { id: "9", name: "官方技术网站" },
-    { id: "321", name: "Wasabi" },
-    { id: "15385", name: "关注的开源项目" },
-    { id: "320", name: "web安全" },
-    { id: "15228", name: "HR招聘" },
-    { id: "15247", name: "Python" },
-    { id: "18025", name: "Perl" },
-    { id: "18026", name: "技术文章" },
-    { id: "18038", name: "PHP技术文章" },
-    { id: "18046", name: "酷狗文档" },
-    { id: "15248", name: "安全信息" },
-    { id: "15037", name: "软件&编程使用" },
-    { id: "6", name: "制作維護网站" },
-    { id: "18005", name: "ZAKER" },
-    { id: "18027", name: "Lisp" },
-    { id: "18024", name: "ZAKER_接口" },
-    { id: "18037", name: "铁人网络" },
-    { id: "18040", name: "台湾旅游" },
-    { id: "18042", name: "星讯" }
+    {
+        "id": "4",
+        "name": "社交SNS",
+        "seq": 19,
+        "page": "fragment-1"
+    },
+    {
+        "id": "18043",
+        "name": "eolinker日常",
+        "seq": 2,
+        "page": "fragment-1"
+    },
+    {
+        "id": "18045",
+        "name": "本地服务",
+        "seq": 3,
+        "page": "fragment-1"
+    },
+    {
+        "id": "18039",
+        "name": "文档",
+        "seq": 4,
+        "page": "fragment-1"
+    },
+    {
+        "id": "1",
+        "name": "Github",
+        "seq": 5,
+        "page": "fragment-1"
+    },
+    {
+        "id": "319",
+        "name": "股票",
+        "seq": 6,
+        "page": "fragment-1"
+    },
+    {
+        "id": "188044",
+        "name": "Go语言",
+        "seq": 7,
+        "page": "fragment-1"
+    },
+    {
+        "id": "8",
+        "name": "Web服务",
+        "seq": 8,
+        "page": "fragment-1"
+    },
+    {
+        "id": "12",
+        "name": "网上商城",
+        "seq": 9,
+        "page": "fragment-1"
+    },
+    {
+        "id": "7",
+        "name": "在线观看/视频下载",
+        "seq": 10,
+        "page": "fragment-1"
+    },
+    {
+        "id": "18041",
+        "name": "openResty",
+        "seq": 11,
+        "page": "fragment-1"
+    },
+    {
+        "id": "5",
+        "name": "常去網站",
+        "seq": 12,
+        "page": "fragment-1"
+    },
+    {
+        "id": "15249",
+        "name": "关注博客",
+        "seq": 13,
+        "page": "fragment-1"
+    },
+    {
+        "id": "13",
+        "name": "安全",
+        "seq": 14,
+        "page": "fragment-1"
+    },
+    {
+        "id": "2",
+        "name": "web工具网",
+        "seq": 15,
+        "page": "fragment-1"
+    },
+    {
+        "id": "3",
+        "name": "前端开发",
+        "seq": 16,
+        "page": "fragment-1"
+    },
+    {
+        "id": "10",
+        "name": "PHP技术网",
+        "seq": 17,
+        "page": "fragment-1"
+    },
+    {
+        "id": "9",
+        "name": "官方技术网站",
+        "seq": 18,
+        "page": "fragment-1"
+    },
+    {
+        "id": "321",
+        "name": "Wasabi",
+        "seq": 19,
+        "page": "fragment-1"
+    },
+    {
+        "id": "15385",
+        "name": "关注的开源项目",
+        "seq": 20,
+        "page": "fragment-1"
+    },
+    {
+        "id": "320",
+        "name": "web安全",
+        "seq": 21,
+        "page": "fragment-1"
+    },
+    {
+        "id": "15228",
+        "name": "HR招聘",
+        "seq": 22,
+        "page": "fragment-1"
+    },
+    {
+        "id": "15247",
+        "name": "Python",
+        "seq": 23,
+        "page": "fragment-1"
+    },
+    {
+        "id": "18025",
+        "name": "Perl",
+        "seq": 24,
+        "page": "fragment-1"
+    },
+    {
+        "id": "18026",
+        "name": "技术文章",
+        "seq": 25,
+        "page": "fragment-1"
+    },
+    {
+        "id": "18038",
+        "name": "PHP技术文章",
+        "seq": 26,
+        "page": "fragment-1"
+    },
+    {
+        "id": "18046",
+        "name": "酷狗文档",
+        "seq": 27,
+        "page": "fragment-1"
+    },
+    {
+        "id": "15248",
+        "name": "安全信息",
+        "seq": 28,
+        "page": "fragment-1"
+    },
+    {
+        "id": "15037",
+        "name": "软件&编程使用",
+        "seq": 29,
+        "page": "fragment-1"
+    },
+    {
+        "id": "6",
+        "name": "制作維護网站",
+        "seq": 30,
+        "page": "fragment-1"
+    },
+    {
+        "id": "18005",
+        "name": "ZAKER",
+        "seq": 31,
+        "page": "fragment-1"
+    },
+    {
+        "id": "18027",
+        "name": "Lisp",
+        "seq": 32,
+        "page": "fragment-1"
+    },
+    {
+        "id": "18024",
+        "name": "ZAKER_接口",
+        "seq": 33,
+        "page": "fragment-1"
+    },
+    {
+        "id": "18037",
+        "name": "铁人网络",
+        "seq": 34,
+        "page": "fragment-1"
+    },
+    {
+        "id": "18040",
+        "name": "台湾旅游",
+        "seq": 35,
+        "page": "fragment-1"
+    },
+    {
+        "id": "18042",
+        "name": "星讯",
+        "seq": 36,
+        "page": "fragment-1"
+    }
 ];
 // 数据
 var initialLinks = {

@@ -3,8 +3,8 @@
 // --- 全局变量定义 ---
 var categories = [];
 var links = {};
-const CATEGORIES_STORAGE_KEY = 'myBookmarks_categories_v3'; // Updated key for fresh start if needed
-const LINKS_STORAGE_KEY = 'myBookmarks_links_v3';
+const CATEGORIES_STORAGE_KEY = 'myBookmarks_categories_v5'; // 更新版本号以确保新结构
+const LINKS_STORAGE_KEY = 'myBookmarks_links_v5';
 
 // --- localStorage 数据处理 ---
 function loadDataFromLocalStorage() {
@@ -14,7 +14,7 @@ function loadDataFromLocalStorage() {
         if (storedCategories && storedLinks) {
             categories = JSON.parse(storedCategories);
             links = JSON.parse(storedLinks);
-            console.log("Data loaded from localStorage.");
+            console.log("Data loaded from localStorage (v5 keys).");
             return true;
         }
     } catch (e) {
@@ -31,7 +31,7 @@ function saveDataToLocalStorage() {
         if (typeof links !== 'object' || links === null) links = {};
         localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
         localStorage.setItem(LINKS_STORAGE_KEY, JSON.stringify(links));
-        console.log("Data saved to localStorage.");
+        console.log("Data saved to localStorage (v5 keys).");
     } catch (e) {
         console.error("Error saving data to localStorage:", e);
         alert("无法将更改保存到本地存储。");
@@ -40,34 +40,55 @@ function saveDataToLocalStorage() {
 
 // --- 文档加载完成后的初始化 ---
 $(document).ready(function() {
-    console.log("Document ready. Initializing...");
+    console.log("Document ready. Initializing application...");
 
     if (!loadDataFromLocalStorage()) {
-        console.log("No data in localStorage or load failed. Using initial data from data.js.");
-        // **IMPORTANT**: Ensure data.js defines initialCategories and initialLinks
-        categories = (typeof initialCategories !== 'undefined' && Array.isArray(initialCategories)) ? JSON.parse(JSON.stringify(initialCategories)) : [];
-        links = (typeof initialLinks !== 'undefined' && typeof initialLinks === 'object' && initialLinks !== null) ? JSON.parse(JSON.stringify(initialLinks)) : {};
+        console.log("localStorage empty or load failed. Using initial data from data.js.");
+        // **确保 data.js 使用 initialCategories 和 initialLinks**
+        let tempCategories = (typeof initialCategories !== 'undefined' && Array.isArray(initialCategories)) ? JSON.parse(JSON.stringify(initialCategories)) : [];
+        let tempLinks = (typeof initialLinks !== 'undefined' && typeof initialLinks === 'object' && initialLinks !== null) ? JSON.parse(JSON.stringify(initialLinks)) : {};
+
+        // 为 categories 添加 seq (如果不存在) 和 page (如果不存在)
+        categories = tempCategories.map((cat, index) => {
+            return {
+                ...cat, // 保留原有属性
+                id: String(cat.id), // 确保id是字符串
+                seq: cat.hasOwnProperty('seq') ? (parseInt(cat.seq, 10) || (index + 1)) : (index + 1),
+                page: cat.hasOwnProperty('page') ? cat.page : 'fragment-1' // 默认 page
+            };
+        });
         
+        links = tempLinks; // links 结构通常不需要在这里大改
+
         if ((categories.length > 0 || Object.keys(links).length > 0)) {
-            console.log("Saving initial data from data.js to localStorage.");
+            console.log("Saving initial data (with potential new seq/page for categories) to localStorage.");
             saveDataToLocalStorage();
         }
     }
 
-    // 初始化 jQuery UI Tabs
-    // jQuery UI 1.9+ initializes on the main tabs div
-    if ($("#tabsEx1").length) $("#tabsEx1").tabs({ active: 0 }); else console.warn("#tabsEx1 not found.");
-    if ($("#tabsEx2").length) $("#tabsEx2").tabs({ active: 0 }); else console.warn("#tabsEx2 not found.");
-    console.log("jQuery UI Tabs initialization attempted.");
+    // 按 seq 排序 categories 数组
+    if (Array.isArray(categories)) {
+        categories.sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
+    }
 
-    populateCategorySelect();
-    generateLinks();
-    bindEventHandlers();
+
+    // 初始化 jQuery UI Tabs
+    try {
+        if ($("#tabsEx1").length) $("#tabsEx1").tabs({ active: 0 });
+        if ($("#tabsEx2").length) $("#tabsEx2").tabs({ active: 0 });
+        console.log("jQuery UI Tabs initialized.");
+    } catch(e) {
+        console.error("Error initializing jQuery UI Tabs:", e);
+    }
+
+    populateCategorySelect(); // 更新下拉框
+    generateLinks();          // 根据排序后的 categories 生成链接
+    bindEventHandlers();      // 绑定事件
 
     $('#item_select').on('change', function() {
         if ($(this).val() === 'add') {
             $('#item_id').val(''); $('#it_title').val('');
-            var newSort = categories.length > 0 ? Math.max(0, ...categories.map(c => parseInt(c.sort, 10) || 0)) + 1 : 1;
+            var newSort = Array.isArray(categories) && categories.length > 0 ? Math.max(0, ...categories.map(c => parseInt(c.sort || c.seq, 10) || 0)) + 1 : 1;
             $('#it_seq').val(newSort); $('#it_page').val('fragment-1');
             showModal('editItemDiv'); $(this).val("0");
         }
@@ -88,7 +109,7 @@ $(document).ready(function() {
         $('#item_select').val(preSelectedCategoryId); settingLastSeq(preSelectedCategoryId);
         showModal('linkContent');
     });
-    console.log("Initialization complete.");
+    console.log("Application initialization complete.");
 });
 
 // --- UI 更新与交互函数 ---
@@ -97,7 +118,9 @@ function populateCategorySelect() {
     if (!select.length) { console.error("Element '#item_select' not found."); return; }
     select.empty().append($('<option>', { value: "0", text: "------------------" }));
     if (Array.isArray(categories)) {
-        categories.forEach(cat => {
+        // 下拉框中的分类也应该按 seq 排序 (如果需要)
+        const sortedCategoriesForSelect = [...categories].sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
+        sortedCategoriesForSelect.forEach(cat => {
             if (cat && cat.id && cat.name) select.append($('<option>', { value: cat.id, text: cat.name }));
         });
     }
@@ -114,23 +137,33 @@ function generateLinks() {
 
     if (!Array.isArray(categories) || typeof links !== 'object' || links === null) return;
 
-    categories.forEach(category => {
+    // 确保 categories 是按 seq 排序的
+    const sortedCategories = [...categories].sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
+
+    sortedCategories.forEach(category => {
         if (!category || !category.name) return;
         var categoryName = category.name;
         if (links.hasOwnProperty(categoryName) && Array.isArray(links[categoryName]) && links[categoryName].length > 0) {
             var categoryContainer = $('<div>').addClass('category-container').attr('data-category', categoryName);
             var categoryTitle = $('<h3>').addClass('category-title').text(categoryName);
             var linksContainer = $('<div>').addClass('links-container');
+            // 对当前分类下的链接也按 seq 排序
             var sortedLinks = [...links[categoryName]].sort((a,b) => (parseInt(a.seq,10)||0) - (parseInt(b.seq,10)||0));
+            
             sortedLinks.forEach(linkData => {
                 if (linkData && typeof linkData.href !== 'undefined' && (typeof linkData.text !== 'undefined' && linkData.text !== null)) {
                     linksContainer.append(createLinkElement(linkData));
                 }
             });
             categoryContainer.append(categoryTitle).append(linksContainer);
-            var targetFragmentId = category.page || 'fragment-1';
-            if (fragments[targetFragmentId]) fragments[targetFragmentId].append(categoryContainer);
-            else if (fragments['fragment-1']) fragments['fragment-1'].append(categoryContainer);
+            // 分类现在有 page 属性，用它来决定放到哪个 fragment
+            var targetFragmentId = category.page || 'fragment-1'; // 默认到 fragment-1
+            if (fragments[targetFragmentId]) {
+                fragments[targetFragmentId].append(categoryContainer);
+            } else if (fragments['fragment-1']) { // Fallback
+                console.warn(`Target fragment '${targetFragmentId}' not found for category '${categoryName}'. Appending to fragment-1.`);
+                fragments['fragment-1'].append(categoryContainer);
+            }
         }
     });
 }
@@ -147,22 +180,20 @@ function bindEventHandlers() {
     });
 
     if ($('#content').length === 0) {
-        console.error("CRITICAL: '#content' element missing. Event delegation for dblclick will fail.");
-        return;
+        console.error("CRITICAL: '#content' element for event delegation not found!"); return;
     }
-    // ** CRITICAL FIX FOR DOUBLE CLICK **
+    // ** DOUBLE CLICK EVENT HANDLER **
     $('#content').off('dblclick.editLink').on('dblclick.editLink', '.links-container a.link', function(event) {
-        console.log('Link dblclick event FIRED on:', this.id, 'Text:', $(this).text());
-        event.preventDefault();       // FIRST THING: Prevent default action (navigation)
-        event.stopImmediatePropagation(); // Prevent other handlers on this element for this event
-        console.log('Default action prevented. Calling editLinkForm.');
-        editLinkForm.call(this);      // Call the edit form function
-        return false;                 // Further ensure no other actions
+        console.log('Link dblclick event FIRED on (ID):', this.id, '| Text:', $(this).text());
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        console.log('Default dblclick action prevented. Calling editLinkForm.');
+        editLinkForm.call(this);
+        return false;
     });
 
     $('#content').off('dblclick.editCategory').on('dblclick.editCategory', '.category-container .category-title', function(event) {
-        event.preventDefault();
-        editCategoryForm.call(this);
+        event.preventDefault(); editCategoryForm.call(this);
     });
     console.log("Event handlers bound.");
 }
@@ -178,7 +209,7 @@ function editLink(event) {
     var selectedCategoryId = $('#item_select').val();
 
     if (!linkName || !linkHref || selectedCategoryId === "0") { alert('名称、网址和所属分类不能为空！'); return; }
-    var categoryObj = categories.find(cat => cat && cat.id === selectedCategoryId);
+    var categoryObj = Array.isArray(categories) ? categories.find(cat => cat && cat.id === selectedCategoryId) : null;
     if (!categoryObj) { alert('选择的分类无效！'); return; }
     var selectedCategoryName = categoryObj.name;
 
@@ -214,19 +245,27 @@ function editCategory(event) {
     if (event) event.preventDefault();
     var categoryId = $('#item_id').val();
     var categoryTitle = $('#it_title').val().trim();
-    var categorySort = $('#it_seq').val().trim();
+    var categorySortInput = $('#it_seq').val().trim(); // 这是用户输入的 seq
     var categoryPage = $('#it_page').val().trim();
-    if (!categoryTitle || !categoryPage) { alert('分类名称和Page不能为空！'); return; }
-    var defaultSort = (Array.isArray(categories) && categories.length > 0 ? Math.max(0, ...categories.map(c => parseInt(c.sort, 10) || 0)) + 1 : 1).toString();
-    categorySort = categorySort || defaultSort;
 
-    if (categoryId === '') {
+    if (!categoryTitle || !categoryPage) { alert('分类名称和Page不能为空！'); return; }
+    
+    var currentSeqValue = (Array.isArray(categories) && categories.length > 0 ? Math.max(0, ...categories.map(c => parseInt(c.seq, 10) || 0)) + 1 : 1);
+    var finalSeq = categorySortInput ? (parseInt(categorySortInput, 10) || currentSeqValue) : currentSeqValue;
+
+
+    if (categoryId === '') { // 新增
         if (Array.isArray(categories) && categories.some(cat => cat && cat.name === categoryTitle)) { alert('分类名称已存在！'); return; }
-        var newCategory = { id: 'cat-' + generateUniqueId(), name: categoryTitle, sort: categorySort, page: categoryPage };
+        var newCategory = { 
+            id: 'cat-' + generateUniqueId(), 
+            name: categoryTitle, 
+            seq: finalSeq, // 使用计算或输入的 seq
+            page: categoryPage 
+        };
         if (!Array.isArray(categories)) categories = [];
         categories.push(newCategory);
         if (!links[newCategory.name]) links[newCategory.name] = [];
-    } else {
+    } else { // 修改
         if (!Array.isArray(categories)) { alert('错误: 分类数据无效。'); return;}
         var catIdx = categories.findIndex(cat => cat && cat.id === categoryId);
         if (catIdx === -1) { alert('错误：未找到要更新的分类！'); return; }
@@ -234,13 +273,15 @@ function editCategory(event) {
         if (oldCategoryName !== categoryTitle && categories.some(c => c && c.name === categoryTitle && c.id !== categoryId)) {
             alert('修改后的分类名称冲突！'); return;
         }
-        categories[catIdx].name = categoryTitle; categories[catIdx].sort = categorySort; categories[catIdx].page = categoryPage;
+        categories[catIdx].name = categoryTitle; 
+        categories[catIdx].seq = finalSeq; // 更新 seq
+        categories[catIdx].page = categoryPage;
         if (oldCategoryName !== categoryTitle && links.hasOwnProperty(oldCategoryName)) {
             links[categoryTitle] = links[oldCategoryName]; delete links[oldCategoryName];
         }
     }
-    if (Array.isArray(categories)) {
-       categories.sort((a, b) => (parseInt(a.sort, 10) || 0) - (parseInt(b.sort, 10) || 0));
+    if (Array.isArray(categories)) { // 排序 categories 数组
+       categories.sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
     }
     saveDataToLocalStorage(); populateCategorySelect(); generateLinks(); hideModal('editItemDiv'); alert('分类操作成功！');
 }
@@ -264,20 +305,11 @@ function deleteLink() {
 function generateUniqueId() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 9); }
 
 function createLinkElement(linkData) {
-    if (!linkData) {
-        console.error("createLinkElement: linkData is undefined");
-        return $('<a>').addClass('link link-error').text('错误链接');
-    }
+    if (!linkData) { return $('<a>').addClass('link link-error').text('错误链接'); }
     var linkText = (typeof linkData.text === 'string' && linkData.text.trim() !== '') ? linkData.text.trim() : "未命名链接";
-    // console.log(`Creating link: ID=${linkData.id}, Text='${linkText}', Href='${linkData.href}'`);
     return $('<a>')
-        .attr({
-            'href': linkData.href || '#',
-            'title': linkData.title || linkText,
-            'id': linkData.id || ('link-' + generateUniqueId()),
-            'target': '_blank'
-        })
-        .addClass('link') // Essential for the dblclick selector
+        .attr({ href: linkData.href || '#', title: linkData.title || linkText, id: linkData.id || ('link-' + generateUniqueId()), target: '_blank' })
+        .addClass('link')
         .text(linkText);
 }
 
@@ -300,7 +332,7 @@ function hideModal(modalId) { $('#' + modalId).hide(); }
 
 function editLinkForm() {
     var linkElement = $(this);
-    console.log("editLinkForm called by:", linkElement.attr('id'));
+    console.log("editLinkForm called by (ID):", linkElement.attr('id'), "| Text:", linkElement.text());
     clean_hyplink_form();
     $('#link_id').val(linkElement.attr('id'));
     $('#name').val(linkElement.text());
@@ -334,7 +366,7 @@ function editCategoryForm() {
         var category = categories.find(cat => cat && cat.name === categoryNameData);
         if (category) {
             $('#item_id').val(category.id); $('#it_title').val(category.name);
-            $('#it_seq').val(category.hasOwnProperty('sort') ? category.sort : '');
+            $('#it_seq').val(category.hasOwnProperty('seq') ? category.seq : ''); // 使用 category.seq
             $('#it_page').val(category.hasOwnProperty('page') ? category.page : 'fragment-1');
             showModal('editItemDiv');
         } else { alert('找不到分类 "' + categoryNameData + '" 的详细信息。'); }
@@ -343,19 +375,25 @@ function editCategoryForm() {
 
 function exportDataAsJson() {
     if (typeof categories === 'undefined' || typeof links === 'undefined') { alert('错误: 数据未准备好导出。'); return; }
-    const categoriesToExport = categories.map(cat => {
+    const categoriesToExport = Array.isArray(categories) ? categories.map(cat => {
         let exportCat = { id: cat.id, name: cat.name };
+        // 只导出实际存在的属性，并符合期望的 data.js 结构
+        if (cat.hasOwnProperty('seq')) exportCat.seq = parseInt(cat.seq, 10) || 0; // 确保 seq 是数字
         if (cat.hasOwnProperty('page')) exportCat.page = cat.page;
-        if (cat.hasOwnProperty('sort')) exportCat.sort = cat.sort;
+        // 如果你的 data.js 中还有其他分类属性，在这里添加
         return exportCat;
-    });
+    }) : [];
+
     const categoriesString = `var initialCategories = ${JSON.stringify(categoriesToExport, null, 4)};`;
     const linksToExport = {};
-    for (const catName in links) {
-        if (links.hasOwnProperty(catName) && Array.isArray(links[catName])) {
-            linksToExport[catName] = links[catName].map(l => ({
-                id: l.id, href: l.href, title: l.title, text: l.text, seq: l.seq
-            }));
+    if (typeof links === 'object' && links !== null) {
+        for (const catName in links) {
+            if (links.hasOwnProperty(catName) && Array.isArray(links[catName])) {
+                linksToExport[catName] = links[catName].map(l => ({
+                    id: l.id, href: l.href, title: l.title, text: l.text, 
+                    seq: parseInt(l.seq, 10) || 0 // 确保 seq 是数字
+                }));
+            }
         }
     }
     const linksString = `var initialLinks = ${JSON.stringify(linksToExport, null, 4)};`;

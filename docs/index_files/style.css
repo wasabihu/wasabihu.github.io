@@ -1,3 +1,5 @@
+/* style.css */
+
 /* Reset */
 *,
 *::before,
@@ -13,78 +15,76 @@
     --text-color: #f8f8f2;
     --primary-color: #64ffda;
     --primary-color-dark: #4ac5b8;
-    --accent-color: #fca311; /* Link text color */
+    --accent-color: #fca311;
     --light-border: #333;
-    --box-shadow: 0 5px 15px rgba(0, 255, 218, 0.1); /* Original shadow */
-    /* Updated box-shadow for a more subtle dark theme */
-    --dark-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); 
-    --font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
-    --font-size-base: 1rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
     --darker-bg: #000;
     --medium-bg: #222;
     --input-bg: #333;
+    --tab-nav-bg: var(--medium-bg); /* Tab 导航栏背景，与页面容器背景一致 */
+    --tab-inactive-bg: #282828; /* 或 var(--light-border) */
+    --tab-active-bg: var(--medium-bg); /* 激活 tab 背景与内容面板一致 */
+    --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Darker shadow */
+    --font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+    --font-size-base: 1rem;
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
 }
 
-/* Basic Styling from your style.css */
+/* Basic Styling */
 body {
     font-family: var(--font-family);
     background-color: var(--bg-color);
     color: var(--text-color);
     line-height: 1.6;
-    overflow-x: hidden;
     font-size: var(--font-size-base);
+    overflow-x: hidden;
 }
 
 #page {
     width: 90%;
     max-width: 1200px;
     margin: var(--spacing-lg) auto;
-    background-color: var(--medium-bg); /* Was #222 */
-    box-shadow: var(--dark-box-shadow); /* Using updated shadow */
+    background-color: var(--medium-bg);
+    box-shadow: var(--box-shadow);
     border-radius: 0.5rem;
     overflow: hidden;
 }
 
-/* Header from your style.css */
+/* Header */
 .header {
-    background-color: var(--darker-bg); /* Was #000 */
-    color: var(--text-color);
+    background-color: var(--darker-bg);
     padding: var(--spacing-md) 0;
     border-bottom: 2px solid var(--primary-color);
-    display: flex; /* Added for flexbox layout */
-    align-items: center; /* Added for vertical alignment */
-    justify-content: space-between; /* Added for spacing */
 }
 
 .header-inner {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 95%; /* Adjusted for better responsiveness */
+    width: 95%;
     max-width: 1100px;
     margin: 0 auto;
-    padding: 0 var(--spacing-md); /* Added padding for inner content */
+    padding: 0 var(--spacing-md);
 }
 
 .logo {
     color: var(--primary-color);
     text-decoration: none;
-    font-size: 1.5rem; /* Was 1.6rem */
+    font-size: 1.5rem;
     font-weight: bold;
 }
 
 .main-nav ul {
     list-style: none;
     display: flex;
-    padding: 0; /* Removed default padding */
-    margin: 0; /* Removed default margin */
+    padding: 0;
+    margin: 0;
 }
 
 .main-nav li {
-    margin-left: var(--spacing-md); /* Consistent spacing */
+    margin-left: var(--spacing-md);
 }
 
 .main-nav a {
@@ -96,43 +96,44 @@ body {
 }
 
 .main-nav a:hover {
-    background-color: var(--light-border); /* Was #333 */
+    background-color: var(--light-border);
     color: var(--primary-color);
 }
 
 /* Main Content Area */
-main#content { /* Added #content for specificity */
+main#content {
     padding: var(--spacing-lg);
 }
 
-
-/* --- Tabs Styling (Crucial for "Geek Dark Theme") --- */
+/* --- Tabs Styling --- */
 .tabs {
-    margin-top: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg); /* Added bottom margin */
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    border: none; /* Remove any default border on the .tabs container itself */
 }
 
 /* jQuery UI Tab Navigation List (.ui-tabs-nav) */
 .tabs .ui-tabs-nav {
     list-style: none;
     padding: 0;
-    margin: 0 0 0 0; /* Remove bottom margin to connect with panel border if desired, or add small one */
+    margin: 0; /* Important: Remove default jQuery UI margins */
     display: flex;
-    border-bottom: 1px solid var(--light-border); /* Consistent border */
+    background-color: var(--tab-nav-bg); /* Make sure tab bar background matches #page */
+    border-bottom: 1px solid var(--primary-color); /* Underline for the whole tab bar */
     overflow-x: auto;
     white-space: nowrap;
 }
 
 /* Individual Tab Item (.ui-tabs-tab) */
 .tabs .ui-tabs-nav li.ui-tabs-tab {
-    margin: 0 var(--spacing-xs) -1px 0; /* Negative margin to overlap border */
+    margin: 0 var(--spacing-xs) 0 0;
     padding: 0;
-    background: var(--medium-bg); /* Slightly lighter than main page bg */
+    background: var(--tab-inactive-bg);
     border: 1px solid var(--light-border);
-    border-bottom: none; /* Tab itself has no bottom border */
+    border-bottom: none; /* Important: Inactive tabs don't have a bottom border here */
+    color: var(--text-color);
+    transition: background-color 0.2s ease, color 0.2s ease;
     border-radius: 0.25rem 0.25rem 0 0;
-    transition: background-color 0.2s ease;
-    position: relative; /* For z-index or pseudo-elements if needed */
 }
 
 /* Tab Item Anchor Link (.ui-tabs-anchor) */
@@ -140,28 +141,29 @@ main#content { /* Added #content for specificity */
     display: block;
     padding: var(--spacing-sm) var(--spacing-md);
     text-decoration: none;
-    color: var(--text-color);
+    color: inherit;
     outline: none;
-    font-weight: normal; /* Default font weight */
+    font-weight: normal;
 }
 
 /* Tab Item Hover State */
 .tabs .ui-tabs-nav li.ui-tabs-tab:hover,
 .tabs .ui-tabs-nav li.ui-tabs-tab.ui-state-hover {
-    background: var(--light-border); /* Darker on hover */
+    background: var(--light-border);
+    color: var(--primary-color);
 }
 
 /* Active Tab Item (.ui-tabs-active .ui-state-active) */
 .tabs .ui-tabs-nav li.ui-tabs-tab.ui-tabs-active.ui-state-active {
-    background: var(--medium-bg); /* Match panel or slightly different */
-    border-color: var(--light-border); /* Match other borders */
-    border-bottom: 1px solid var(--medium-bg); /* Blend with panel */
-    /* To make it "pop" a bit more */
-    /* box-shadow: 0 -2px 5px rgba(0,0,0,0.1) inset; */
+    background: var(--tab-active-bg); /* Match content panel bg */
+    border-color: var(--primary-color); /* Active tab border matches primary color */
+    border-bottom: 1px solid var(--tab-active-bg); /* Makes it look connected to panel */
+    position: relative;
+    /* top: 1px; */ /* Optional: slightly lift active tab */
 }
 
 .tabs .ui-tabs-nav li.ui-tabs-tab.ui-tabs-active.ui-state-active a.ui-tabs-anchor {
-    color: var(--primary-color); /* Active tab text color */
+    color: var(--primary-color);
     font-weight: bold;
     cursor: default;
 }
@@ -169,15 +171,15 @@ main#content { /* Added #content for specificity */
 /* Tab Panel (.ui-tabs-panel) */
 .tabs .ui-tabs-panel.ui-widget-content {
     padding: var(--spacing-md);
-    background-color: var(--medium-bg);
-    border: 1px solid var(--light-border);
-    border-top: none; /* Remove top border to connect with tab list */
-    border-radius: 0 0 0.25rem 0.25rem; /* Bottom corners rounded */
+    background-color: var(--medium-bg); /* Consistent with #page */
+    border: 1px solid var(--primary-color);
+    border-top: none; /* Critical to merge with tab bar's bottom border */
+    border-radius: 0 0 0.25rem 0.25rem;
+    clear: both;
 }
 /* --- End Tabs Styling --- */
 
-
-/* Category Containers from your style.css */
+/* Category Containers */
 .category-container {
     margin-bottom: var(--spacing-lg);
     border-bottom: 1px solid var(--light-border);
@@ -188,231 +190,72 @@ main#content { /* Added #content for specificity */
     font-size: 1.3rem;
     font-weight: bold;
     color: var(--primary-color);
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
     padding-bottom: var(--spacing-sm);
-    border-bottom: 2px solid var(--primary-color);
+    border-bottom: 1px solid var(--primary-color);
 }
 
-/* Links Container from your style.css */
+/* Links Container */
 .links-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start; /* Default, can be overridden by specific needs */
-    gap: var(--spacing-sm); /* Modern way for spacing flex items */
+    justify-content: flex-start;
+    gap: var(--spacing-sm);
 }
 
-/* Individual Links (<a> tags with class 'link') */
 .links-container a.link {
     display: inline-block;
-    /* margin: var(--spacing-sm); Removed in favor of gap on parent */
     padding: var(--spacing-sm) var(--spacing-md);
     border: 1px solid var(--light-border);
     border-radius: 0.25rem;
     text-decoration: none;
     color: var(--accent-color);
-    background-color: var(--input-bg); /* Match input fields for consistency */
+    background-color: var(--input-bg);
     transition: all 0.3s ease;
 }
 
 .links-container a.link:hover {
-    background-color: var(--light-border); /* Darker hover */
+    background-color: var(--light-border);
     border-color: var(--accent-color);
     color: var(--primary-color);
 }
 
-/* Modals from your style.css */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.85); /* Darker overlay for better focus */
-}
+/* Modals (保持你原有的模态框样式，看起来不错) */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.85); }
+.modal-form { background-color: var(--medium-bg); margin: 10% auto; padding: var(--spacing-lg); border: 1px solid var(--light-border); border-radius: 0.5rem; width: 90%; max-width: 500px; box-shadow: var(--box-shadow); }
+.form-group { margin-bottom: var(--spacing-md); }
+.form-group label { display: block; margin-bottom: var(--spacing-sm); font-weight: bold; color: var(--primary-color); }
+.form-group input[type="text"], .form-group input[type="url"], .form-group input[type="number"], .form-group select { width: 100%; padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--light-border); border-radius: 0.25rem; font-family: var(--font-family); font-size: var(--font-size-base); background-color: var(--input-bg); color: var(--text-color); transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px var(--primary-color-dark); }
+.form-actions { text-align: right; margin-top: var(--spacing-lg); }
+.btn { padding: var(--spacing-sm) var(--spacing-md); border: 1px solid transparent; border-radius: 0.25rem; cursor: pointer; font-family: var(--font-family); font-weight: bold; transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; margin-left: var(--spacing-sm); }
+.btn-primary { background-color: var(--primary-color); color: var(--darker-bg); border-color: var(--primary-color); }
+.btn-primary:hover { background-color: var(--primary-color-dark); border-color: var(--primary-color-dark); color: var(--darker-bg); }
+.btn-secondary { background-color: var(--light-border); color: var(--text-color); border-color: var(--light-border); }
+.btn-secondary:hover { background-color: #444; border-color: #555; color: var(--primary-color); }
+.form-link-delete { color: #999; font-size: 0.9rem; float: right; line-height: 2.4; margin-right: var(--spacing-sm); }
+.form-link-delete a { color: #999; text-decoration: none; }
+.form-link-delete a:hover { color: var(--accent-color); text-decoration: underline; }
 
-.modal-form {
-    background-color: var(--medium-bg);
-    margin: 10% auto;
-    padding: var(--spacing-lg);
-    border: 1px solid var(--light-border);
-    border-radius: 0.5rem;
-    width: 80%;
-    max-width: 500px; /* Slightly narrower for better readability */
-    box-shadow: var(--dark-box-shadow);
-}
+/* Footer */
+.footer { text-align: center; padding: var(--spacing-lg); background-color: var(--darker-bg); color: var(--text-color); font-size: 0.9em; border-top: 2px solid var(--primary-color); margin-top: var(--spacing-lg); }
 
-.form-group {
-    margin-bottom: var(--spacing-md);
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: var(--spacing-sm);
-    font-weight: bold;
-    color: var(--primary-color); /* Labels use primary color */
-}
-
-.form-group input[type="text"],
-.form-group input[type="url"],
-.form-group input[type="number"],
-.form-group select {
-    width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border: 1px solid var(--light-border);
-    border-radius: 0.25rem;
-    font-family: var(--font-family);
-    font-size: var(--font-size-base);
-    background-color: var(--input-bg);
-    color: var(--text-color);
-    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth focus */
-}
-
-.form-group input:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px var(--primary-color-dark); /* Focus ring */
-}
-
-.form-actions {
-    text-align: right; /* Buttons aligned to the right */
-    margin-top: var(--spacing-lg);
-}
-
-.btn {
-    padding: var(--spacing-sm) var(--spacing-md);
-    border: 1px solid transparent; /* For consistent height with bordered buttons */
-    border-radius: 0.25rem;
-    cursor: pointer;
-    font-family: var(--font-family);
-    font-weight: bold;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-    margin-left: var(--spacing-sm); /* Spacing between buttons */
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    color: var(--darker-bg); /* Text color for primary button */
-    border-color: var(--primary-color);
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-color-dark);
-    border-color: var(--primary-color-dark);
-    color: var(--darker-bg);
-}
-
-.btn-secondary {
-    background-color: var(--light-border); /* Subtler secondary button */
-    color: var(--text-color);
-    border-color: var(--light-border);
-}
-
-.btn-secondary:hover {
-    background-color: #444; /* Slightly lighter hover */
-    border-color: #555;
-    color: var(--primary-color);
-}
-
-.form-link-delete {
-    /* margin-left: 1rem; */ /* Removed to allow float right to work better */
-    color: #999; /* Lighter text for delete */
-    font-size: 0.9rem;
-    float: right; /* Align to the right within its group */
-    line-height: 2.4; /* Approximate vertical centering with select */
-    margin-right: var(--spacing-sm); /* Space from the edge */
-}
-
-.form-link-delete a {
-    color: #999;
-    text-decoration: none;
-}
-
-.form-link-delete a:hover {
-    color: var(--accent-color); /* Use accent for destructive hover */
-    text-decoration: underline;
-}
-
-
-/* Footer from your style.css */
-.footer {
-    text-align: center;
-    padding: var(--spacing-md); /* Was lg */
-    background-color: var(--darker-bg); /* Was #000 */
-    color: var(--text-color);
-    font-size: 0.8em;
-    border-top: 2px solid var(--primary-color);
-    margin-top: var(--spacing-lg); /* Added margin top */
-}
-
-/* Mobile Responsive from your style.css, slightly adjusted */
+/* Responsive (保持你原有的响应式规则，可按需微调) */
 @media (max-width: 768px) {
-    body {
-        font-size: 0.95rem; /* Adjust base font for mobile slightly */
-    }
-    #page {
-        width: 98%;
-        margin: var(--spacing-sm) auto; /* Less margin on mobile */
-    }
-    .header-inner {
-        flex-direction: column;
-        align-items: center; /* Center items in header on mobile */
-    }
-    .logo {
-        font-size: 1.3rem; /* Slightly larger logo on mobile */
-        margin-bottom: var(--spacing-md); /* More space below logo */
-    }
-    .main-nav {
-        width: 100%;
-        justify-content: center; /* Center nav items */
-    }
-    .main-nav ul {
-        justify-content: center; /* Center nav items */
-        flex-wrap: wrap; /* Allow nav items to wrap */
-    }
-    .main-nav li {
-        margin: var(--spacing-xs) var(--spacing-sm); /* Adjust nav item margin */
-    }
-    .tab-nav { /* From your CSS, seems okay */
-        flex-wrap: wrap;
-    }
-    .tab-nav-item { /* From your CSS */
-        width: 50%;
-        text-align: center;
-        margin-bottom: 0;
-    }
-    .links-container { /* From your CSS */
-        justify-content: center; /* Center links on mobile if they wrap */
-    }
-    .links-container a.link { /* From your CSS */
-        margin: var(--spacing-xs);
-        padding: var(--spacing-xs) var(--spacing-sm);
-        font-size: 0.85rem;
-    }
-    .modal-form {
-        width: 95%;
-        margin: var(--spacing-md) auto; /* Adjust modal margin */
-        padding: var(--spacing-md);
-    }
-    .form-actions {
-        text-align: center;
-    }
-    .form-actions .btn {
-        display: block; /* Stack buttons on mobile */
-        width: 100%;
-        margin: 0 0 var(--spacing-sm) 0; /* Remove left margin, add bottom */
-    }
-    .form-actions .btn:last-child {
-        margin-bottom: 0;
-    }
-    .form-link-delete { /* Adjust delete link for stacked buttons */
-        float: none;
-        display: block;
-        text-align: center;
-        margin: var(--spacing-md) 0 0 0;
-        line-height: normal;
-    }
+    body { font-size: 0.95rem; }
+    #page { width: 98%; margin: var(--spacing-sm) auto; }
+    .header-inner { flex-direction: column; align-items: center; }
+    .logo { font-size: 1.3rem; margin-bottom: var(--spacing-md); }
+    .main-nav { width: 100%; justify-content: center; }
+    .main-nav ul { justify-content: center; flex-wrap: wrap; }
+    .main-nav li { margin: var(--spacing-xs) var(--spacing-sm); }
+    /* Tab nav items should not wrap with width 50% if overflow-x: auto is on .ui-tabs-nav */
+    /* .tab-nav-item { width: 50%; text-align: center; margin-bottom: 0; } */
+    .links-container { justify-content: center; }
+    .links-container a.link { margin: var(--spacing-xs); padding: var(--spacing-xs) var(--spacing-sm); font-size: 0.85rem; }
+    .modal-form { width: 95%; margin: var(--spacing-md) auto; padding: var(--spacing-md); }
+    .form-actions { text-align: center; }
+    .form-actions .btn { display: block; width: 100%; margin: 0 0 var(--spacing-sm) 0; }
+    .form-actions .btn:last-child { margin-bottom: 0; }
+    .form-link-delete { float: none; display: block; text-align: center; margin: var(--spacing-md) 0 0 0; line-height: normal; }
 }
