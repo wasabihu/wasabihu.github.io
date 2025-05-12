@@ -542,3 +542,162 @@ $('#showAddLinkFormButton').on('click', function() {
     }
     showModal('linkContent');
 });
+
+// index.js
+
+$(document).ready(function() {
+    // ... (之前的 $(document).ready() 內容) ...
+
+    // 新增：為“新增链接”按钮绑定事件
+    // 这个按钮的 ID 是 showAddLinkFormButton
+    $('#showAddLinkFormButton').on('click', function() {
+        clean_hyplink_form(); // 清空表单，并将 link_id 设为空字符串
+
+        // 尝试预设分类和排序
+        // 优先选择当前激活的 tab 页的第一个分类
+        var activeTabLi = $("#tabsEx1 > ul .ui-tabs-active").length ? $("#tabsEx1 > ul .ui-tabs-active") : $("#tabsEx2 > ul .ui-tabs-active");
+        var activeTabFragmentId = activeTabLi.length ? activeTabLi.attr('aria-controls') : null;
+        
+        var preSelectedCategoryId = "0"; // 默认不选择
+
+        if (activeTabFragmentId) {
+            // 找到第一个 page 属性与 activeTabFragmentId 匹配的分类
+            var firstCategoryInActiveTab = categories.find(cat => cat.page === activeTabFragmentId);
+            if (firstCategoryInActiveTab) {
+                preSelectedCategoryId = firstCategoryInActiveTab.id;
+            }
+        }
+        
+        // 如果没有找到活动 Tab 的分类，或者没有活动 Tab，可以尝试选择 categories 中的第一个分类
+        if (preSelectedCategoryId === "0" && categories.length > 0) {
+            // 检查 categories[0] 是否有效
+            if(categories[0] && categories[0].id) {
+                 preSelectedCategoryId = categories[0].id;
+            }
+        }
+
+        $('#item_select').val(preSelectedCategoryId); // 设置下拉框的选中项
+        settingLastSeq(preSelectedCategoryId); // 根据选中的分类（或未选中）设置排序
+
+        showModal('linkContent'); // 显示链接编辑/新增模态框
+    });
+});
+
+// ... (populateCategorySelect, generateLinks, bindEventHandlers 等函数保持不变或使用之前的版本) ...
+
+// clean_hyplink_form 函数 (确保它将 link_id 设为空)
+function clean_hyplink_form() {
+    $('#link_id').val(''); // 确保 link_id 为空，表示是新增操作
+    $('#name').val('');
+    $('#href').val('');
+    $('#description').val(''); // "备注" 对应 "description" 字段
+    $('#seq').val('');
+    $('#item_select').val("0"); // 重置分类选择到 "------------------"
+}
+
+// settingLastSeq 函数 (确保它能处理 categoryId 为 "0" 或 null 的情况)
+function settingLastSeq(selectedCategoryId) {
+    var seq = 1; // 默认排序为 1
+    if (selectedCategoryId && selectedCategoryId !== "0") {
+        var category = categories.find(cat => cat.id === selectedCategoryId);
+        if (category && links[category.name] && Array.isArray(links[category.name]) && links[category.name].length > 0) {
+            // 确保 link.seq 是数字或可以转为数字
+            const sequences = links[category.name].map(link => parseInt(link.seq, 10)).filter(s => !isNaN(s));
+            if (sequences.length > 0) {
+                seq = Math.max(...sequences) + 1;
+            } else {
+                seq = 1; // 如果该分类下所有链接的seq都无效，则从1开始
+            }
+        } else {
+            seq = 1; // 如果分类下尚无链接，新链接排序为1
+        }
+    }
+    // 如果没有选择分类 (selectedCategoryId 为 "0" 或 null)，排序默认为 1
+    // 或者，你可以决定在这种情况下不设置 seq，让用户必须选择分类
+    $('#seq').val(seq);
+}
+
+
+// editLink 函数 (它已经处理了 linkId === '' 的新增情况)
+// 请确保你使用的是包含此逻辑的 editLink 版本
+function editLink(event) {
+    if (event) event.preventDefault();
+
+    var linkId = $('#link_id').val(); // 如果是新增，这里会是空字符串
+    var linkName = $('#name').val().trim();
+    var linkHref = $('#href').val().trim();
+    var linkDescription = $('#description').val().trim(); // "备注"
+    var linkSeq = $('#seq').val().trim();
+    var selectedCategoryId = $('#item_select').val();
+
+    if (!linkName || !linkHref || selectedCategoryId === "0") {
+        alert('名称、网址和所属分类不能为空！');
+        return;
+    }
+
+    var categoryObj = categories.find(cat => cat.id === selectedCategoryId);
+    if (!categoryObj) {
+        alert('选择的分类无效！');
+        return;
+    }
+    var selectedCategoryName = categoryObj.name;
+
+    if (linkId === '') { // 新增链接逻辑
+        var newLink = {
+            id: 'link-' + generateUniqueId(),
+            href: linkHref,
+            title: linkDescription, // 对应 "备注"
+            text: linkName,
+            seq: linkSeq || '1' // 如果用户没填排序，默认为 '1' 或其他合理值
+        };
+
+        if (!links[selectedCategoryName]) {
+            links[selectedCategoryName] = [];
+        }
+        links[selectedCategoryName].push(newLink);
+        links[selectedCategoryName].sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
+
+        generateLinks(); // 刷新列表显示
+
+    } else { // 修改链接逻辑 (保持不变)
+        let foundAndUpdated = false;
+        for (var categoryNameKey in links) {
+            if (links.hasOwnProperty(categoryNameKey)) {
+                var linkIndex = links[categoryNameKey].findIndex(link => link.id === linkId);
+
+                if (linkIndex !== -1) {
+                    var originalCategoryName = categoryNameKey;
+                    var linkToUpdate = links[originalCategoryName][linkIndex];
+
+                    linkToUpdate.href = linkHref;
+                    linkToUpdate.title = linkDescription; // 对应 "备注"
+                    linkToUpdate.text = linkName;
+                    linkToUpdate.seq = linkSeq || '1';
+
+                    if (originalCategoryName !== selectedCategoryName) {
+                        links[originalCategoryName].splice(linkIndex, 1);
+                        if (!links[selectedCategoryName]) {
+                            links[selectedCategoryName] = [];
+                        }
+                        links[selectedCategoryName].push(linkToUpdate);
+                        links[selectedCategoryName].sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
+                    } else {
+                        links[originalCategoryName].sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
+                    }
+                    foundAndUpdated = true;
+                    break;
+                }
+            }
+        }
+        if (foundAndUpdated) {
+            generateLinks();
+        } else {
+            alert('未找到要更新的链接！');
+            return;
+        }
+    }
+
+    hideModal('linkContent');
+    alert('操作成功');
+    // 如果你想在操作成功后，让汇出按钮闪烁或提示用户汇出以保存更改，可以在这里添加逻辑
+}
