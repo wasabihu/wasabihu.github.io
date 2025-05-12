@@ -2,13 +2,13 @@ var initialCategories = [
     {
         "id": "4",
         "name": "社交SNS",
-        "seq": 19,
+        "seq": 1,
         "page": "fragment-1"
     },
     {
         "id": "18043",
         "name": "eolinker日常",
-        "seq": 2,
+        "seq": 5,
         "page": "fragment-1"
     },
     {
@@ -219,7 +219,7 @@ var initialCategories = [
 // 数据
 var initialLinks = {
     "社交SNS": [
-        { id: "16", href: "http://www.douban.com/", title: "", text: "豆瓣網", seq: "1" },
+        { id: "16", href: "http://www.douban.com/", title: "", text: "豆瓣網", seq: "119" },
         { id: "10", href: "http://weibo.com/", title: "wa\*\*\*.weibo", text: "新浪weibo", seq: "2" },
         { id: "108813", href: "http://git.oschina.net/wasa", title: "", text: "git.osc", seq: "11" },
         { id: "11", href: "https://twitter.com/", title: "", text: "Twitter ", seq: "19" },
