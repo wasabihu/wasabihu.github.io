@@ -1,4 +1,4 @@
-var categories = [
+var initialCategories = [
     { id: "4", name: "社交SNS" },
     { id: "18043", name: "eolinker日常" },
     { id: "18045", name: "本地服务" },
@@ -37,7 +37,7 @@ var categories = [
     { id: "18042", name: "星讯" }
 ];
 // 数据
-var links = {
+var initialLinks = {
     "社交SNS": [
         { id: "16", href: "http://www.douban.com/", title: "", text: "豆瓣網", seq: "1" },
         { id: "10", href: "http://weibo.com/", title: "wa\*\*\*.weibo", text: "新浪weibo", seq: "2" },
