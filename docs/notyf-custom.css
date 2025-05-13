@@ -1,0 +1,133 @@
+/* notyf-custom.css */
+
+/* --- Custom Notyf Styles --- */
+.notyf {
+    /* Global positioning and base settings for Notyf container */
+}
+
+.notyf__toast {
+    font-family: var(--font-family, 'Fira Code', 'Consolas', 'Monaco', monospace);
+    border-radius: 0.25rem; 
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); 
+    
+    padding-top: var(--spacing-xs, 0.25rem);    
+    padding-bottom: var(--spacing-xs, 0.25rem); 
+    padding-left: var(--spacing-md, 1rem);
+    /* 为关闭按钮留出一些空间，即使它绝对靠右 */
+    padding-right: calc(var(--spacing-md, 1rem) + var(--spacing-sm, 0.5rem)); 
+    
+    max-width: 400px; 
+    width: auto;      
+    min-width: 280px; 
+    
+    opacity: 0.96; 
+    transition: all 0.3s ease-in-out;
+    border: 1px solid rgba(255, 255, 255, 0.08); 
+    margin-bottom: var(--spacing-sm, 0.5rem); 
+    
+    display: flex; 
+    align-items: center; 
+    /* 移除 justify-content: space-between; 以便 margin-left: auto 生效 */
+}
+
+.notyf__message {
+    font-size: 0.95rem;  
+    line-height: 1.45;   
+    font-weight: 500;   
+    padding-left: 0;    
+    flex-grow: 1; /* 关键：让消息内容占据所有可用空间，将关闭按钮推向右边 */
+    min-width: 0; /* 允许在空间不足时缩小 */
+}
+
+.notyf__icon {
+    display: none;
+}
+
+/* Specific notification type styles */
+.notyf-success-custom {
+    background-color: var(--primary-color, #64ffda); 
+    color: var(--darker-bg, #121212); 
+    border-left: 4px solid var(--primary-color-dark, #4ac5b8); 
+}
+.notyf-success-custom .notyf__ripple {
+    background-color: var(--primary-color-dark, #4ac5b8);
+}
+.notyf-success-custom .notyf__dismiss-icon {
+    color: var(--darker-bg, #121212); 
+}
+
+
+.notyf-error-custom {
+    background-color: #d32f2f; 
+    color: var(--text-color, #f8f8f2);          
+    border-left: 4px solid #b71c1c;          
+}
+.notyf-error-custom .notyf__ripple {
+    background-color: #b71c1c;
+}
+.notyf-error-custom .notyf__dismiss-icon {
+    color: var(--text-color, #f8f8f2);
+}
+
+
+.notyf-warning-custom {
+    background-color: var(--accent-color, #fca311); 
+    color: var(--darker-bg, #121212); 
+    border-left: 4px solid #ef6c00;             
+}
+.notyf-warning-custom .notyf__ripple {
+    background-color: #ef6c00;
+}
+.notyf-warning-custom .notyf__dismiss-icon {
+    color: var(--darker-bg, #121212);
+}
+
+
+.notyf-info-custom {
+    background-color: #2979ff; 
+    color: var(--text-color, #f8f8f2);         
+    border-left: 4px solid #1c54b2;           
+}
+.notyf-info-custom .notyf__ripple {
+    background-color: #1c54b2;
+}
+.notyf-info-custom .notyf__dismiss-icon {
+    color: var(--text-color, #f8f8f2);
+}
+
+
+/* Dismiss button style */
+.notyf__dismiss-icon {
+    opacity: 0.7; 
+    transition: opacity 0.2s ease;
+    font-size: 1.25em; 
+    line-height: 1; 
+    padding: 0 var(--spacing-xs, 0.25rem); 
+    align-self: center; 
+    margin-left: auto;  /* 关键：再次尝试用 margin-left: auto 将关闭按钮推到最右边 */
+    cursor: pointer;    
+    flex-shrink: 0; /* 防止关闭按钮在空间不足时被压缩 */
+}
+
+.notyf__dismiss-icon:hover {
+    opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .notyf__toast {
+        max-width: calc(100vw - 30px); 
+        min-width: 0; 
+        padding-top: calc(var(--spacing-xs, 0.25rem) + 3px); 
+        padding-bottom: calc(var(--spacing-xs, 0.25rem) + 3px);
+        /* 确保响应式下右内边距也足够 */
+        padding-right: calc(var(--spacing-md, 1rem) + var(--spacing-xs, 0.25rem)); 
+    }
+    .notyf { 
+        right: var(--spacing-xs, 0.25rem); 
+        top: var(--spacing-xs, 0.25rem);   
+    }
+    .notyf__message {
+        font-size: 0.9rem; 
+    }
+}

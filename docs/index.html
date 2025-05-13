@@ -6,13 +6,17 @@
     <title>网上收藏夹</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css">
 
-    <link rel="stylesheet" href="./index_files/style.css">
-    <script src="./index_files/data.js"></script> 
-    <script src="./index_files/index.js"></script>
-</head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    
+    <link rel="stylesheet" href="./style.css"> 
+    <link rel="stylesheet" href="./notyf-custom.css">
+    <script src="./data.js"></script> <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    
+    <script src="./index.js"></script> </head>
 <body>
     <div id="page">
         <header class="header">
@@ -20,7 +24,7 @@
                 <a href="https://wasabihu.github.io/" class="logo">Wasabi</a>
                 <nav class="main-nav">
                     <ul>
-                        <li><a href="https://www.google.com/ncr" >Google</a></li>
+                        <li><a href="https://www.google.com/ncr" target="_blank">Google</a></li>
                     </ul>
                 </nav>
             </div>
@@ -28,6 +32,7 @@
 
         <main id="content">
             <div style="margin-bottom: var(--spacing-md); text-align: right;">
+                <button id="showAddCategoryFormButton" class="btn btn-primary" style="margin-right: 10px;">新增分類</button> 
                 <button id="showAddLinkFormButton" class="btn btn-primary" style="margin-right: 10px;">新增連結</button>
                 <button id="exportDataButton" class="btn btn-primary">匯出資料 (JS)</button>
             </div>
@@ -38,9 +43,12 @@
                     <li><a href="#fragment-2">工具</a></li>
                     <li><a href="#fragment-3">其他</a></li>
                 </ul>
-                <div id="fragment-1" class="tab-panel"></div>
-                <div id="fragment-2" class="tab-panel"></div>
-                <div id="fragment-3" class="tab-panel"></div>
+                <div id="fragment-1" class="tab-panel">
+                    </div>
+                <div id="fragment-2" class="tab-panel">
+                    </div>
+                <div id="fragment-3" class="tab-panel">
+                    </div>
             </div>
 
             <div id="tabsEx2" class="tabs" style="margin-top: var(--spacing-lg);">
@@ -48,8 +56,10 @@
                     <li><a href="#fragment-4">收藏</a></li>
                     <li><a href="#fragment-6">其他2</a></li>
                 </ul>
-                <div id="fragment-4" class="tab-panel"></div>
-                <div id="fragment-6" class="tab-panel"></div>
+                <div id="fragment-4" class="tab-panel">
+                    </div>
+                <div id="fragment-6" class="tab-panel">
+                    </div>
             </div>
 
             <div id="linkContent" class="modal">
@@ -112,8 +122,8 @@
         </main>
 
         <footer class="footer">
-            <p>&copy; 2025 My Bookmarks</p>
-        </footer>
+            <p>&copy; 2025 My Bookmarks</p> </footer>
     </div>
-</body>
+
+    </body>
 </html>
