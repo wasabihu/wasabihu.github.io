@@ -4,19 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>网上收藏夹</title>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script src="./data.js"></script>
+    <script src="./dataManager.js"></script> <script src="./index.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css">
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
-    
-    <link rel="stylesheet" href="./style.css"> 
+    <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="./notyf-custom.css">
-    <script src="./data.js"></script> <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-    
-    <script src="./index.js"></script> </head>
+</head>
 <body>
     <div id="page">
         <header class="header">
@@ -65,10 +62,16 @@
             <div id="linkContent" class="modal">
                 <form id="editLinkForm" class="modal-form">
                     <input type="hidden" id="link_id" name="link_id" value="">
+
+                    <div class="form-group">
+                        <label for="select_link_to_edit">选择要编辑的链接：</label>
+                        <select id="select_link_to_edit" name="select_link_to_edit">
+                            <option value="">-- 请选择一个链接 --</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="item_select">所属分类：</label>
-                        <select id="item_select" name="item_select">
-                            <option value="0">------------------</option>
+                        <select id="item_select" name="item_select" disabled> <option value="0">------------------</option>
                             <option value="add" class="thickbox">新增分类</option>
                         </select>
                         <span class="form-link-delete">
