@@ -30,6 +30,9 @@
     --spacing-sm: 0.5rem;
     --spacing-md: 1rem;
     --spacing-lg: 1.5rem;
+
+    /* 新增：用于链接最小宽度的变量 (以 em 为单位) */
+    --link-min-width-em: 10em; /* 初始设为 8em，对应大约8个汉字 */
 }
 
 /* Basic Styling */
@@ -53,29 +56,9 @@ body {
 }
 
 /* Header */
-.header {
-    background-color: var(--darker-bg);
-    padding: var(--spacing-md) 0;
-    border-bottom: 2px solid var(--primary-color);
-}
-
-.header-inner {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 95%;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-md);
-}
-
-.logo {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
+.header { background-color: var(--darker-bg); padding: var(--spacing-md) 0; border-bottom: 2px solid var(--primary-color); }
+.header-inner { display: flex; justify-content: space-between; align-items: center; width: 95%; max-width: 1100px; margin: 0 auto; padding: 0 var(--spacing-md); }
+.logo { color: var(--primary-color); text-decoration: none; font-size: 1.5rem; font-weight: bold; }
 .main-nav ul { list-style: none; display: flex; padding: 0; margin: 0; }
 .main-nav li { margin-left: var(--spacing-md); }
 .main-nav a { color: var(--text-color); text-decoration: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: 0.25rem; transition: background-color 0.3s ease, color 0.3s ease; }
@@ -87,19 +70,13 @@ main#content {
 }
 
 /* --- Action Buttons Container (for top buttons) --- */
-/* This is the div wrapping the top action buttons */
-/* In your HTML, it's <div style="margin-bottom: var(--spacing-md); text-align: right;"> */
-/* It's better to give it an ID for more specific targeting if text-align: right from inline style is an issue */
-#main-action-buttons { /* Assuming you add this ID to the div */
+#main-action-buttons {
     display: flex;
-    justify-content: flex-end; /* Desktop: align buttons to the right */
-    flex-wrap: wrap; /* Allow wrapping on desktop too if needed, though less common */
+    justify-content: flex-end; 
+    flex-wrap: wrap; 
     gap: var(--spacing-sm);
     margin-bottom: var(--spacing-md);
 }
-/* If you don't want to add an ID, you can target it structurally, but it's less robust: */
-/* main#content > div:first-child { ... } */
-
 
 /* --- General Button Styles --- */
 .btn { 
@@ -115,10 +92,7 @@ main#content {
     text-align: center;
     line-height: 1.5; 
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    /* Remove individual margins if using gap on parent */
-    /* margin-left: var(--spacing-sm); */ 
 }
-/* .btn:first-child { margin-left: 0; } */
 
 .btn-primary { 
     background-color: var(--primary-color); 
@@ -154,7 +128,7 @@ main#content {
     color: white;
 }
 
-/* --- Tabs Styling (Copied from your provided style.css, seems okay) --- */
+/* --- Tabs Styling --- */
 .tabs { margin-top: var(--spacing-md); margin-bottom: var(--spacing-lg); border: none; }
 .tabs .ui-tabs-nav { list-style: none; padding: 0; margin: 0; display: flex; background-color: var(--tab-nav-bg); border-bottom: 1px solid var(--primary-color); overflow-x: auto; white-space: nowrap; }
 .tabs .ui-tabs-nav li.ui-tabs-tab { margin: 0 var(--spacing-xs) 0 0; padding: 0; background: var(--tab-inactive-bg); border: 1px solid var(--light-border); border-bottom: none; color: var(--text-color); transition: background-color 0.2s ease, color 0.2s ease; border-radius: 0.25rem 0.25rem 0 0; }
@@ -164,15 +138,35 @@ main#content {
 .tabs .ui-tabs-nav li.ui-tabs-tab.ui-tabs-active.ui-state-active a.ui-tabs-anchor { color: var(--primary-color); font-weight: bold; cursor: default; }
 .tabs .ui-tabs-panel.ui-widget-content { padding: var(--spacing-md); background-color: var(--medium-bg); border: 1px solid var(--primary-color); border-top: none; border-radius: 0 0 0.25rem 0.25rem; clear: both; }
 
-/* Category & Links Styling (Copied, seems okay) */
+/* Category & Links Styling */
 .category-container { margin-bottom: var(--spacing-lg); border-bottom: 1px solid var(--light-border); padding-bottom: var(--spacing-md); }
 .category-container:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
 .category-title { font-size: 1.3rem; font-weight: bold; color: var(--primary-color); margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--primary-color); }
-.links-container { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: var(--spacing-sm); }
-.links-container a.link { display: inline-block; padding: var(--spacing-sm) var(--spacing-md); border: 1px solid var(--light-border); border-radius: 0.25rem; text-decoration: none; color: var(--accent-color); background-color: var(--input-bg); transition: all 0.3s ease; }
+
+.links-container { 
+    display: flex; 
+    flex-wrap: wrap; 
+    justify-content: flex-start; 
+    gap: var(--spacing-sm); 
+}
+.links-container a.link { 
+    display: inline-block; 
+    padding: var(--spacing-sm) var(--spacing-md); 
+    border: 1px solid var(--light-border); 
+    border-radius: 0.25rem; 
+    text-decoration: none; 
+    color: var(--accent-color); 
+    background-color: var(--input-bg); 
+    transition: all 0.3s ease;
+    min-width: var(--link-min-width-em); /* 使用 CSS 变量 */
+    text-align: center; 
+    white-space: nowrap;      
+    overflow: hidden;         
+    text-overflow: ellipsis;  
+}
 .links-container a.link:hover { background-color: var(--light-border); border-color: var(--accent-color); color: var(--primary-color); }
 
-/* Modals (Copied, seems okay) */
+/* Modals */
 .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.85); }
 .modal-form { background-color: var(--medium-bg); margin: 10% auto; padding: var(--spacing-lg); border: 1px solid var(--light-border); border-radius: 0.5rem; width: 90%; max-width: 500px; box-shadow: var(--box-shadow); }
 .form-group { margin-bottom: var(--spacing-md); }
@@ -181,10 +175,10 @@ main#content {
 .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px var(--primary-color-dark); }
 .form-actions { text-align: right; margin-top: var(--spacing-lg); }
 .form-actions::after { content: ""; clear: both; display: table; }
-/* Removing the old .form-link-delete as it was moved */
 
-/* Footer (Copied, seems okay) */
+/* Footer */
 .footer { text-align: center; padding: var(--spacing-lg); background-color: var(--darker-bg); color: var(--text-color); font-size: 0.9em; border-top: 2px solid var(--primary-color); margin-top: var(--spacing-lg); }
+
 
 /* =================================== */
 /* ===== RESPONSIVE DESIGN BELOW ===== */
@@ -199,15 +193,15 @@ main#content {
     .main-nav ul { justify-content: center; flex-wrap: wrap; }
     .main-nav li { margin: var(--spacing-xs) var(--spacing-sm); }
     
-    /* Links container in mobile - ensure it's left-aligned */
     .links-container { 
-        justify-content: flex-start; /* <<< MAKE SURE THIS IS flex-start FOR MOBILE */
-        /* gap: var(--spacing-xs); /* Optional: smaller gap on mobile */
+        justify-content: flex-start; 
     }
     .links-container a.link { 
-        margin: 0; /* If using gap on parent */
+        margin: 0; 
         padding: var(--spacing-xs) var(--spacing-sm); 
         font-size: 0.85rem; 
+        /* 移动端也使用 CSS 变量，如果需要不同值，可以再定义一个移动端专用变量或直接写值 */
+        min-width: var(--link-min-width-em, 7em); /* 尝试使用 7em 作为移动端的备用值或默认值 */
     }
     
     .modal-form { 
@@ -216,7 +210,6 @@ main#content {
         padding: var(--spacing-md); 
     }
         
-    /* Modal form actions buttons stacking (Copied, seems okay) */
     .form-actions { text-align: center; }
     .form-actions .btn { 
         display: block; width: 100%; 
@@ -225,30 +218,19 @@ main#content {
     }
     .form-actions .btn:last-child { margin-bottom: 0; }
 
-    /* --- 修正：页面顶部主要操作按钮的移动端样式 --- */
     #main-action-buttons {
         display: flex;         
-        flex-direction: column; /* 强制垂直堆叠 */
-        align-items: center;    /* 使堆叠的按钮在其容器内水平居中 */
+        flex-direction: column; 
+        align-items: center;    
         gap: var(--spacing-sm); 
         margin-bottom: var(--spacing-lg); 
-        /* padding-left and padding-right can be removed if buttons are width:100% of a sub-container */
     }
-
-    #main-action-buttons .btn { /* Target buttons específicamente dentro de #main-action-buttons */
-        width: 90%;       /* 每个按钮宽度为父容器的90% */
-        max-width: 350px; /* 但不超过350px */
-        min-width: auto;  /* 或一个合适的最小像素值如 120px */
-        margin: 0 auto;   /* 确保在 flex column + align-items:center 后，按钮本身也居中（如果宽度不是100% of parent's width minus padding) */
-                          /* 如果 align-items: stretch，则不需要 margin: 0 auto */
-
-        /* 强制恢复/应用 btn-primary 样式 */
+    #main-action-buttons .btn {
+        width: 90%;       
+        max-width: 320px; 
+        margin: 0 auto;   
         background-color: var(--primary-color);
         color: var(--darker-bg);
-        border: 1px solid var(--primary-color); /* 确保有边框 */
-        padding-top: var(--spacing-sm); 
-        padding-bottom: var(--spacing-sm);
-        text-align: center;
+        border-color: var(--primary-color);
     }
-    /* 移除按钮之间的内联 style="margin-right: 10px;" */
 }
