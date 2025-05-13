@@ -58,7 +58,6 @@
                 <div id="fragment-6" class="tab-panel">
                     </div>
             </div>
-
             <div id="linkContent" class="modal">
                 <form id="editLinkForm" class="modal-form">
                     <input type="hidden" id="link_id" name="link_id" value="">
@@ -69,15 +68,14 @@
                             <option value="">-- 请选择一个链接 --</option>
                         </select>
                     </div>
+                    
                     <div class="form-group">
                         <label for="item_select">所属分类：</label>
-                        <select id="item_select" name="item_select" disabled> <option value="0">------------------</option>
+                        <select id="item_select" name="item_select" disabled> 
+                            <option value="0">------------------</option>
                             <option value="add" class="thickbox">新增分类</option>
                         </select>
-                        <span class="form-link-delete">
-                            <a href="#" id="deleteCurrentLinkButtonInForm">删除</a>
-                        </span>
-                    </div>
+                        </div>
                     <div class="form-group">
                         <label for="name">名称：</label>
                         <input type="text" id="name" name="name" value="">
@@ -95,6 +93,8 @@
                         <input type="number" id="seq" name="seq" value="" min="1">
                     </div>
                     <div class="form-actions">
+                        <input id="deleteCurrentLinkButtonInForm" type="button" value="删除此链接" class="btn btn-danger" style="float: left;"> 
+                        
                         <input id="edit_link_but" type="button" value="提交" class="btn btn-primary">
                         <input id="cancelLinkModalButton" type="button" value="取消" class="btn btn-secondary">
                     </div>

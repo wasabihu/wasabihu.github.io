@@ -262,18 +262,25 @@ main#content {
     .form-link-delete { float: none; display: block; text-align: center; margin: var(--spacing-md) 0 0 0; line-height: normal; }
 }
 
-/* style.css */
+/* style.css (或者你放按钮样式的地方) */
 
-/* ... (你现有的 btn, btn-primary, btn-secondary 样式) ... */
+/* ... (你现有的 .btn, .btn-primary, .btn-secondary 样式) ... */
 
 .btn-danger {
-    background-color: #d32f2f; /* 红色背景 */
-    color: white;
-    border-color: #b71c1c; /* 深红色边框 */
+    background-color: #d32f2f; /* 醒目的红色背景 */
+    color: white;              /* 白色文字 */
+    border-color: #b71c1c;   /* 深红色边框 */
 }
 
 .btn-danger:hover {
     background-color: #b71c1c; /* 鼠标悬停时更深的红色 */
     border-color: #9a100e;
     color: white;
+}
+
+/* 确保 form-actions 内部的浮动元素能正确布局 */
+.form-actions::after { /* 清除浮动 */
+    content: "";
+    clear: both;
+    display: table;
 }
