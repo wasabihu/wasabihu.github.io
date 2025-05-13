@@ -13,8 +13,8 @@
     padding-top: var(--spacing-xs, 0.25rem);    
     padding-bottom: var(--spacing-xs, 0.25rem); 
     padding-left: var(--spacing-md, 1rem);
-    /* 为关闭按钮留出一些空间，即使它绝对靠右 */
-    padding-right: calc(var(--spacing-md, 1rem) + var(--spacing-sm, 0.5rem)); 
+    /* 为绝对定位的关闭按钮留出足够的右侧内边距 */
+    padding-right: calc(var(--spacing-md, 1rem) + var(--spacing-sm, 0.5rem)); /* 例如 1rem + 0.5rem */
     
     max-width: 400px; 
     width: auto;      
@@ -25,9 +25,9 @@
     border: 1px solid rgba(255, 255, 255, 0.08); 
     margin-bottom: var(--spacing-sm, 0.5rem); 
     
-    display: flex; 
-    align-items: center; 
-    /* 移除 justify-content: space-between; 以便 margin-left: auto 生效 */
+    position: relative; /* 关键：父容器需要相对定位，以便子元素的绝对定位相对于它 */
+    /* display: flex;  当使用绝对定位关闭按钮时，toast 本身不一定需要 flex */
+    /* align-items: center; */
 }
 
 .notyf__message {
@@ -35,8 +35,8 @@
     line-height: 1.45;   
     font-weight: 500;   
     padding-left: 0;    
-    flex-grow: 1; /* 关键：让消息内容占据所有可用空间，将关闭按钮推向右边 */
-    min-width: 0; /* 允许在空间不足时缩小 */
+    /* flex-grow: 1; 当关闭按钮绝对定位时，消息不再需要 flex-grow */
+    /* min-width: 0; */
 }
 
 .notyf__icon {
@@ -96,17 +96,22 @@
 }
 
 
-/* Dismiss button style */
+/* Dismiss button style - 使用绝对定位 */
 .notyf__dismiss-icon {
+    position: absolute;
+    top: 50%;                             /* 垂直居中：第一步，移到父容器高度的一半 */
+    right: var(--spacing-sm, 0.5rem);     /* 距离右边缘的距离 */
+    transform: translateY(-50%);          /* 垂直居中：第二步，向上移动自身高度的一半 */
+    
     opacity: 0.7; 
     transition: opacity 0.2s ease;
     font-size: 1.25em; 
-    line-height: 1; 
-    padding: 0 var(--spacing-xs, 0.25rem); 
-    align-self: center; 
-    margin-left: auto;  /* 关键：再次尝试用 margin-left: auto 将关闭按钮推到最右边 */
+    line-height: 1; /* 确保单行文字的关闭按钮垂直居中 */
+    padding: var(--spacing-xs, 0.25rem); /* 给关闭按钮一点点击区域 */
     cursor: pointer;    
-    flex-shrink: 0; /* 防止关闭按钮在空间不足时被压缩 */
+    /* flex-shrink: 0;  不再需要 flex 相关属性 */
+    /* margin-left: auto; 不再需要 */
+    /* align-self: center; 不再需要 */
 }
 
 .notyf__dismiss-icon:hover {
@@ -120,7 +125,7 @@
         min-width: 0; 
         padding-top: calc(var(--spacing-xs, 0.25rem) + 3px); 
         padding-bottom: calc(var(--spacing-xs, 0.25rem) + 3px);
-        /* 确保响应式下右内边距也足够 */
+        /* 响应式下右内边距也需要足够 */
         padding-right: calc(var(--spacing-md, 1rem) + var(--spacing-xs, 0.25rem)); 
     }
     .notyf { 
@@ -129,5 +134,8 @@
     }
     .notyf__message {
         font-size: 0.9rem; 
+    }
+    .notyf__dismiss-icon { /* 调整关闭按钮在小屏幕上的右边距 */
+        right: var(--spacing-xs, 0.25rem);
     }
 }
