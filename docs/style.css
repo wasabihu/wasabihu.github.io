@@ -29,7 +29,7 @@
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
     --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
+    --spacing-lg: 0.1rem;
 
     /* 新增：用于链接最小宽度的变量 (以 em 为单位) */
     --link-min-width-em: 10em; /* 初始设为 8em，对应大约8个汉字 */
@@ -136,7 +136,12 @@ main#content {
 .tabs .ui-tabs-nav li.ui-tabs-tab:hover, .tabs .ui-tabs-nav li.ui-tabs-tab.ui-state-hover { background: var(--light-border); color: var(--primary-color); }
 .tabs .ui-tabs-nav li.ui-tabs-tab.ui-tabs-active.ui-state-active { background: var(--tab-active-bg); border-color: var(--primary-color); border-bottom: 1px solid var(--tab-active-bg); position: relative; }
 .tabs .ui-tabs-nav li.ui-tabs-tab.ui-tabs-active.ui-state-active a.ui-tabs-anchor { color: var(--primary-color); font-weight: bold; cursor: default; }
-.tabs .ui-tabs-panel.ui-widget-content { padding: var(--spacing-md); background-color: var(--medium-bg); border: 1px solid var(--primary-color); border-top: none; border-radius: 0 0 0.25rem 0.25rem; clear: both; }
+.tabs .ui-tabs-panel.ui-widget-content { 
+    padding: var(--spacing-md); background-color: var(--medium-bg); 
+    border: 1px solid var(--primary-color); 
+    border-top: none; 
+    border-radius: 0 0 0.25rem 0.25rem; clear: both; 
+}
 
 /* Category & Links Styling */
 .category-container { margin-bottom: var(--spacing-lg); border-bottom: 1px solid var(--light-border); padding-bottom: var(--spacing-md); }
@@ -233,4 +238,8 @@ main#content {
         color: var(--darker-bg);
         border-color: var(--primary-color);
     }
+}
+
+.ui-widget-content {
+    background: #ecbfbf;
 }
