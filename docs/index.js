@@ -290,6 +290,8 @@ function bindEventHandlers() {
     console.log("Event handlers bound.");
 }
 
+// index.js (修改后的 editLink 函数)
+
 function editLink(event) {
     if (event) event.preventDefault();
     var linkId = $('#link_id').val();
@@ -328,14 +330,14 @@ function editLink(event) {
 
     const isEditingFlow = $('#select_link_to_edit').parent().is(':visible');
 
-    if (!linkId && !isEditingFlow) { // 明确这是新增流程
+    if (!linkId && !isEditingFlow) { // 新增链接的逻辑
         var newLink = { id: 'link-' + generateUniqueId(), href: linkHref, title: linkDescription, text: linkName, seq: String(finalLinkSeq) };
         if (!links[selectedCategoryName] || !Array.isArray(links[selectedCategoryName])) links[selectedCategoryName] = [];
         links[selectedCategoryName].push(newLink);
         notyf.success('链接 "' + linkName + '" 新增成功！');
         hideModal('linkContent');
         $('#item_select').prop('disabled', false);
-    } else if (linkId && isEditingFlow) { // 明确这是编辑流程
+    } else if (linkId && isEditingFlow) { // 修改链接的逻辑
         let linkToUpdate = null;
         if (links[selectedCategoryName] && Array.isArray(links[selectedCategoryName])) {
             linkToUpdate = links[selectedCategoryName].find(l => l && l.id === linkId);
@@ -348,9 +350,14 @@ function editLink(event) {
         linkToUpdate.href = linkHref; linkToUpdate.title = linkDescription;
         linkToUpdate.text = linkName; linkToUpdate.seq = String(finalLinkSeq);
         notyf.success('链接 "' + linkName + '" 更新成功！');
-        $('#select_link_to_edit option[value="' + linkId + '"]').text(linkName);
+        // $('#select_link_to_edit option[value="' + linkId + '"]').text(linkName); // 更新下拉框文本
+
+        // *** 新增：修改成功后也关闭弹窗 ***
+        hideModal('linkContent');
+        $('#item_select').prop('disabled', false); // 恢复“所属分类”的可选状态
+        // clean_hyplink_form_for_container_edit(); // 可以选择是否在关闭后清理编辑用表单
+        
     } else {
-        // 这种情况理论上不应该发生，如果发生了，说明流程判断有误
         console.error("editLink: Ambiguous state - linkId:", linkId, "isEditingFlow:", isEditingFlow);
         notyf.error("操作状态不明确，请重试。");
         return;
@@ -359,7 +366,6 @@ function editLink(event) {
     saveDataToLocalStorage_DM(categories, links, notyf);
     generateLinks();
 }
-// ... (deleteLink, editCategory, 和其他辅助函数与之前版本类似，确保 saveDataToLocalStorage_DM 的调用正确) ...
 
 function deleteLink() {
     var linkIdToDelete = $('#link_id').val(); 
