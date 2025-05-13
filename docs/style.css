@@ -261,3 +261,19 @@ main#content {
     .form-actions .btn:last-child { margin-bottom: 0; }
     .form-link-delete { float: none; display: block; text-align: center; margin: var(--spacing-md) 0 0 0; line-height: normal; }
 }
+
+/* style.css */
+
+/* ... (你现有的 btn, btn-primary, btn-secondary 样式) ... */
+
+.btn-danger {
+    background-color: #d32f2f; /* 红色背景 */
+    color: white;
+    border-color: #b71c1c; /* 深红色边框 */
+}
+
+.btn-danger:hover {
+    background-color: #b71c1c; /* 鼠标悬停时更深的红色 */
+    border-color: #9a100e;
+    color: white;
+}

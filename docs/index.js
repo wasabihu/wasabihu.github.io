@@ -62,7 +62,6 @@ $(document).ready(function() {
 
     // “新增分类”(从链接表单的“所属分类”下拉菜单触发)的事件
     $('#item_select').on('change', function() {
-        // 只有当这个下拉框可见且可选时（即不在编辑特定分类链接的流程中），"新增分类"选项才有效
         if (!$(this).prop('disabled') && $(this).val() === 'add') {
             $('#item_id').val(''); $('#it_title').val('');
             var activeTabPanel = $(".tabs .ui-tabs-panel:not([style*='display: none'], .ui-tabs-hide)");
@@ -74,6 +73,7 @@ $(document).ready(function() {
                 if (validSeqs.length > 0) newSort = Math.max(0, ...validSeqs) + 1;
             }
             $('#it_seq').val(newSort);
+            $('#delete_category_but').hide(); // 新增分类时不显示删除按钮
             showModal('editItemDiv'); $(this).val("0");
         }
     });
@@ -81,62 +81,44 @@ $(document).ready(function() {
     // “新增链接”按钮的点击事件
     $('#showAddLinkFormButton').on('click', function() {
         console.log("Show Add Link Form Button clicked.");
-        clean_hyplink_form(); // 这个函数现在会正确处理新增链接的表单状态
-
-        // 确保“所属分类”可选，“选择编辑链接”部分隐藏
+        clean_hyplink_form();
         $('#item_select').prop('disabled', false);
-        $('#select_link_to_edit').val("").parent().hide(); // 重置并隐藏
+        $('#select_link_to_edit').val("").parent().hide();
         $('#deleteCurrentLinkButtonInForm').hide();
-
         if (!Array.isArray(categories) || categories.length === 0) {
-            notyf.error("请先至少创建一个分类，才能新增链接！");
-            return;
+            notyf.error("请先至少创建一个分类，才能新增链接！"); return;
         }
-
         var activeTabPanel = $(".tabs .ui-tabs-panel:not([style*='display: none'], .ui-tabs-hide)");
         var activeTabFragmentId = activeTabPanel.length ? activeTabPanel.attr('id') : null;
         var preSelectedCategoryId = "0";
-
         if (activeTabFragmentId && Array.isArray(categories)) {
             var firstCategoryInActiveTab = categories.find(cat => cat && cat.page === activeTabFragmentId);
-            if (firstCategoryInActiveTab && firstCategoryInActiveTab.id) { // 确保 firstCategoryInActiveTab 和其 id 存在
+            if (firstCategoryInActiveTab && firstCategoryInActiveTab.id) {
                 preSelectedCategoryId = firstCategoryInActiveTab.id;
             }
         }
-        
         if (preSelectedCategoryId === "0" && Array.isArray(categories) && categories.length > 0 && categories[0] && categories[0].id) {
             preSelectedCategoryId = categories[0].id;
         }
-        
-        // 如果仍然没有合适的预选，并且下拉列表中除了默认和“新增分类”外没有其他选项
         if (preSelectedCategoryId === "0") {
             let hasActualCategoryOptions = false;
             $('#item_select option').each(function() {
                 if ($(this).val() !== "0" && $(this).val() !== "add") {
-                    hasActualCategoryOptions = true;
-                    return false; 
+                    hasActualCategoryOptions = true; return false;
                 }
             });
-            if (!hasActualCategoryOptions && categories.length > 0) { // 如果有分类数据但下拉没生成，可能populateCategorySelect有问题
-                 notyf.error("分类列表未正确加载，请刷新页面或先创建分类。");
-                 return;
-            } else if (!hasActualCategoryOptions && categories.length === 0) {
-                 notyf.error("请先至少创建一个分类，才能新增链接！");
-                 return;
+            if (!hasActualCategoryOptions) {
+                 notyf.error("请先至少创建一个分类，才能新增链接！"); return;
             }
-            // 如果有其他选项，但没匹配到预选，就让用户自己选 (保持 "0")
         }
-        
         $('#item_select').val(preSelectedCategoryId);
-        console.log("Setting item_select for new link to (val):", $('#item_select').val());
         settingLastSeq(preSelectedCategoryId);
         showModal('linkContent');
     });
 
     // 独立“新增分类”按钮的点击事件
-    if ($('#showAddCategoryFormButton').length) { 
+    if ($('#showAddCategoryFormButton').length) {
         $('#showAddCategoryFormButton').on('click', function() {
-            // ... (此部分逻辑与之前版本相同，用于打开新增分类的弹窗) ...
             $('#item_id').val(''); $('#it_title').val('');
             var activeTabPanel = $(".tabs .ui-tabs-panel:not([style*='display: none'], .ui-tabs-hide)");
             var activeTabFragmentId = activeTabPanel.length ? activeTabPanel.attr('id') : 'fragment-1';
@@ -146,7 +128,9 @@ $(document).ready(function() {
                 const validSeqs = categories.map(c => parseInt(c.seq, 10)).filter(s => !isNaN(s));
                 if (validSeqs.length > 0) newSort = Math.max(0, ...validSeqs) + 1;
             }
-            $('#it_seq').val(newSort); showModal('editItemDiv');
+            $('#it_seq').val(newSort);
+            $('#delete_category_but').hide(); // 新增分类时不显示删除按钮
+            showModal('editItemDiv');
         });
     }
     console.log("Application initialization complete.");
@@ -156,9 +140,8 @@ $(document).ready(function() {
 function populateCategorySelect() {
     var select = $('#item_select');
     if (!select.length) { console.error("Element '#item_select' not found."); return; }
-    var currentVal = select.val(); // 保存当前值
-    var isDisabled = select.prop('disabled'); // 保存禁用状态
-
+    var currentVal = select.val();
+    var isDisabled = select.prop('disabled');
     select.empty().append($('<option>', { value: "0", text: "------------------" }));
     if (Array.isArray(categories)) {
         const sortedCategoriesForSelect = [...categories].sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
@@ -167,11 +150,7 @@ function populateCategorySelect() {
         });
     }
     select.append($('<option>', { value: "add", text: "新增分类" }).addClass("thickbox"));
-    
-    // 尝试恢复之前的值和状态，除非是 "add"
-    if (currentVal && currentVal !== "add") {
-        select.val(currentVal);
-    }
+    if (currentVal && currentVal !== "add") { select.val(currentVal); }
     select.prop('disabled', isDisabled);
 }
 
@@ -213,11 +192,9 @@ function handleEditLinksInContainerDblClick() {
     var categoryName = categoryContainer.data('category');
     var category = categories.find(cat => cat && cat.name === categoryName);
     if (!category) { notyf.error(`找不到名为 "${categoryName}" 的分类数据。`); return; }
-
     clean_hyplink_form_for_container_edit();
     $('#item_select').val(category.id).prop('disabled', true);
-    $('#select_link_to_edit').val("").parent().show(); // 重置并显示
-
+    $('#select_link_to_edit').val("").parent().show();
     var selectLinkToEdit = $('#select_link_to_edit');
     selectLinkToEdit.empty().append($('<option>', { value: "", text: "-- 请选择一个链接 --" }));
     if (links[categoryName] && Array.isArray(links[categoryName]) && links[categoryName].length > 0) {
@@ -237,7 +214,6 @@ function handleEditLinksInContainerDblClick() {
 function clean_hyplink_form_for_container_edit() {
     $('#link_id').val(''); $('#name').val(''); $('#href').val('');
     $('#description').val(''); $('#seq').val('');
-    //  不直接设置 #item_select 的值，因为它会在 handleEditLinksInContainerDblClick 中被设置并禁用
     $('#item_select').prop('disabled', true); 
     $('#select_link_to_edit').empty().append($('<option>', { value: "", text: "-- 请选择一个链接 --" })).prop('disabled', false);
     $('#deleteCurrentLinkButtonInForm').hide();
@@ -247,30 +223,39 @@ function bindEventHandlers() {
     console.log("Binding event handlers...");
     $('#edit_link_but').off('click').on('click', editLink);
     $('#edit_item_but').off('click').on('click', editCategory);
+    $('#delete_category_but').off('click').on('click', deleteCategory); // 绑定删除分类按钮事件
     $('#exportDataButton').off('click').on('click', function() { exportDataAsJson_DM(categories, links, notyf); });
     $('#cancelLinkModalButton').off('click').on('click', () => {
         hideModal('linkContent');
         $('#item_select').prop('disabled', false); 
-        $('#select_link_to_edit').parent().hide(); // 确保取消时也隐藏编辑用下拉
+        $('#select_link_to_edit').parent().hide(); 
     });
     $('#cancelCategoryModalButton').off('click').on('click', () => hideModal('editItemDiv'));
     $('#deleteCurrentLinkButtonInForm').off('click').on('click', function(e) {
         e.preventDefault();
         if ($('#link_id').val()) {
-            if (confirm('您确定要删除这个链接吗？')) { deleteLink(); }
+            if (typeof Swal !== 'undefined') { // 检查 SweetAlert2 是否可用
+                Swal.fire({
+                    title: '确定删除此链接吗？', text: "此操作无法撤销！", icon: 'warning',
+                    showCancelButton: true, confirmButtonColor: '#d32f2f', cancelButtonColor: 'var(--accent-color)',
+                    confirmButtonText: '是的，删除！', cancelButtonText: '取消',
+                    background: 'var(--medium-bg)', color: 'var(--text-color)'
+                }).then((result) => { if (result.isConfirmed) { deleteLink(); } });
+            } else { // Fallback to native confirm
+                if (confirm('您确定要删除这个链接吗？')) { deleteLink(); }
+            }
         } else { notyf.error("请先选择一个要删除的链接。"); }
     }).hide();
 
     if ($('#content').length === 0) { console.error("CRITICAL: '#content' element for event delegation not found!"); return; }
     $('#content').off('dblclick.editLinksInContainer').on('dblclick.editLinksInContainer', '.links-container', handleEditLinksInContainerDblClick);
-    $('#content').off('dblclick.editCategory').on('dblclick.editCategory', '.category-container .category-title', function(event) {
-        event.preventDefault(); editCategoryForm.call(this);
-    });
+    $('#content').off('dblclick.editCategory').on('dblclick.editCategory', '.category-container .category-title', editCategoryForm); // 直接调用，上下文由 jQuery 保证
+    
     $('#select_link_to_edit').on('change', function() {
         var selectedLinkId = $(this).val();
         var categoryId = $('#item_select').val();
         var category = categories.find(cat => cat && cat.id === categoryId);
-        if (!category) { notyf.error("所属分类信息丢失！(on select_link_to_edit change)"); return; } // 增加来源提示
+        if (!category) { notyf.error("所属分类信息丢失！(on select_link_to_edit change)"); return; }
         var categoryName = category.name;
         if (selectedLinkId && links[categoryName]) {
             var linkData = links[categoryName].find(l => l.id === selectedLinkId);
@@ -290,8 +275,7 @@ function bindEventHandlers() {
     console.log("Event handlers bound.");
 }
 
-// index.js (修改后的 editLink 函数)
-
+// --- 核心数据操作函数 ---
 function editLink(event) {
     if (event) event.preventDefault();
     var linkId = $('#link_id').val();
@@ -301,15 +285,8 @@ function editLink(event) {
     var linkSeqInput = $('#seq').val().trim();
     var selectedCategoryId = $('#item_select').val();
 
-    console.log("editLink called. linkId:", linkId, "selectedCategoryId:", selectedCategoryId, "is #select_link_to_edit visible:", $('#select_link_to_edit').parent().is(':visible'));
-
-    if (!linkName || !linkHref) {
-        notyf.error('链接名称和网址不能为空！'); return;
-    }
-    if (selectedCategoryId === "0" || selectedCategoryId === 'add') {
-        notyf.error('请选择一个有效的所属分类！'); return;
-    }
-
+    if (!linkName || !linkHref) { notyf.error('链接名称和网址不能为空！'); return; }
+    if (selectedCategoryId === "0" || selectedCategoryId === 'add') { notyf.error('请选择一个有效的所属分类！'); return; }
     var categoryObj = Array.isArray(categories) ? categories.find(cat => cat && cat.id === selectedCategoryId) : null;
     if (!categoryObj) { notyf.error('选择的分类数据无效！'); return; }
     var selectedCategoryName = categoryObj.name;
@@ -330,71 +307,58 @@ function editLink(event) {
 
     const isEditingFlow = $('#select_link_to_edit').parent().is(':visible');
 
-    if (!linkId && !isEditingFlow) { // 新增链接的逻辑
+    if (!linkId && !isEditingFlow) {
         var newLink = { id: 'link-' + generateUniqueId(), href: linkHref, title: linkDescription, text: linkName, seq: String(finalLinkSeq) };
         if (!links[selectedCategoryName] || !Array.isArray(links[selectedCategoryName])) links[selectedCategoryName] = [];
         links[selectedCategoryName].push(newLink);
         notyf.success('链接 "' + linkName + '" 新增成功！');
         hideModal('linkContent');
         $('#item_select').prop('disabled', false);
-    } else if (linkId && isEditingFlow) { // 修改链接的逻辑
+    } else if (linkId && isEditingFlow) {
         let linkToUpdate = null;
         if (links[selectedCategoryName] && Array.isArray(links[selectedCategoryName])) {
             linkToUpdate = links[selectedCategoryName].find(l => l && l.id === linkId);
         }
         if (!linkToUpdate) {
             notyf.error('错误：未找到要更新的链接！请重新选择。');
-            $('#select_link_to_edit').val("").trigger('change');
-            return;
+            $('#select_link_to_edit').val("").trigger('change'); return;
         }
         linkToUpdate.href = linkHref; linkToUpdate.title = linkDescription;
         linkToUpdate.text = linkName; linkToUpdate.seq = String(finalLinkSeq);
         notyf.success('链接 "' + linkName + '" 更新成功！');
-        // $('#select_link_to_edit option[value="' + linkId + '"]').text(linkName); // 更新下拉框文本
-
-        // *** 新增：修改成功后也关闭弹窗 ***
-        hideModal('linkContent');
-        $('#item_select').prop('disabled', false); // 恢复“所属分类”的可选状态
-        // clean_hyplink_form_for_container_edit(); // 可以选择是否在关闭后清理编辑用表单
-        
+        $('#select_link_to_edit option[value="' + linkId + '"]').text(linkName);
+        hideModal('linkContent'); // 修改成功后也关闭弹窗
+        $('#item_select').prop('disabled', false);
     } else {
         console.error("editLink: Ambiguous state - linkId:", linkId, "isEditingFlow:", isEditingFlow);
-        notyf.error("操作状态不明确，请重试。");
-        return;
+        notyf.error("操作状态不明确，请重试。"); return;
     }
-
     saveDataToLocalStorage_DM(categories, links, notyf);
     generateLinks();
 }
 
 function deleteLink() {
-    var linkIdToDelete = $('#link_id').val(); 
-    var categoryId = $('#item_select').val(); 
-    
+    var linkIdToDelete = $('#link_id').val();
+    var categoryId = $('#item_select').val();
     if (!linkIdToDelete) { notyf.error('请先通过下拉框选择一个要删除的链接。'); return; }
     if (!categoryId || categoryId === "0") { notyf.error('无法确定链接所属的分类。'); return; }
-
     var category = categories.find(cat => cat && cat.id === categoryId);
     if (!category) { notyf.error('找不到链接所属的分类数据。'); return; }
     var categoryName = category.name;
     let deleted = false;
-
     if (links[categoryName] && Array.isArray(links[categoryName])) {
         let linkIdx = links[categoryName].findIndex(l => l && l.id === linkIdToDelete);
         if (linkIdx !== -1) { links[categoryName].splice(linkIdx, 1); deleted = true; }
     }
-
     if (deleted) {
-        saveDataToLocalStorage_DM(categories, links, notyf); 
-        generateLinks(); 
+        saveDataToLocalStorage_DM(categories, links, notyf);
+        generateLinks();
         hideModal('linkContent');
-        $('#item_select').prop('disabled', false); 
-        // 如果是从编辑流程删除的，clean_hyplink_form_for_container_edit 更合适
-        // 如果是从新增流程（理论上不会到这里，因为删除按钮是隐藏的）
-        clean_hyplink_form_for_container_edit(); 
-        notyf.success('链接已成功删除！'); 
+        $('#item_select').prop('disabled', false);
+        clean_hyplink_form_for_container_edit();
+        notyf.success('链接已成功删除！');
     } else {
-        notyf.error('在数据中未找到要删除的链接。'); 
+        notyf.error('在数据中未找到要删除的链接。');
     }
 }
 
@@ -420,13 +384,14 @@ function editCategory(event) {
         }
         finalSeq = maxSeq + 1;
     }
-    if (categoryIdFromInput === '') {
+    if (categoryIdFromInput === '') { // 新增
         var newCategoryId = generateNewCategoryId();
         var newCategory = { id: newCategoryId, name: categoryTitle, seq: finalSeq, page: categoryPage };
         if (!Array.isArray(categories)) categories = [];
         categories.push(newCategory);
         if (!links[newCategory.name]) links[newCategory.name] = [];
-    } else {
+         $('#delete_category_but').hide(); // 确保新增后，如果表单未关闭，删除按钮隐藏
+    } else { // 修改
         if (!Array.isArray(categories)) { notyf.error('错误: 分类数据无效。'); return; }
         var catIdx = categories.findIndex(cat => cat && cat.id === categoryIdFromInput);
         if (catIdx === -1) { notyf.error('错误：未找到要更新的分类！'); return; }
@@ -437,12 +402,51 @@ function editCategory(event) {
                 links[categoryTitle] = links[oldCategoryName]; delete links[oldCategoryName];
             } else { links[categoryTitle] = []; }
         }
+         $('#delete_category_but').show(); // 修改时确保删除按钮可见
     }
     if (Array.isArray(categories)) {
        categories.sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
     }
     saveDataToLocalStorage_DM(categories, links, notyf);
     populateCategorySelect(); generateLinks(); hideModal('editItemDiv'); notyf.success('分类操作成功！');
+}
+
+// 新增：删除分类的函数
+function deleteCategory() {
+    var categoryIdToDelete = $('#item_id').val();
+    if (!categoryIdToDelete) {
+        notyf.error("无法确定要删除哪个分类。请重新打开编辑窗口。"); return;
+    }
+    var categoryIndex = categories.findIndex(cat => cat && cat.id === categoryIdToDelete);
+    if (categoryIndex === -1) {
+        notyf.error("在数据中未找到要删除的分类。"); return;
+    }
+    var categoryToDelete = categories[categoryIndex];
+    var categoryName = categoryToDelete.name;
+
+    const confirmAction = () => {
+        categories.splice(categoryIndex, 1);
+        if (links.hasOwnProperty(categoryName)) { delete links[categoryName]; }
+        saveDataToLocalStorage_DM(categories, links, notyf);
+        populateCategorySelect(); generateLinks();
+        hideModal('editItemDiv');
+        notyf.success(`分类 "${categoryName}" 已成功删除！`);
+    };
+
+    if (typeof Swal !== 'undefined') { // 优先使用 SweetAlert2
+        Swal.fire({
+            title: `确定删除分类 "${categoryName}" 吗?`,
+            text: "注意：这将同时删除该分类下的所有链接，此操作无法撤销！",
+            icon: 'warning', showCancelButton: true, confirmButtonColor: '#d32f2f',
+            cancelButtonColor: 'var(--accent-color, #fca311)', confirmButtonText: '是的，删除它！',
+            cancelButtonText: '取消', background: 'var(--medium-bg, #222)',
+            color: 'var(--text-color, #f8f8f2)'
+        }).then((result) => { if (result.isConfirmed) { confirmAction(); } });
+    } else { // Fallback to native confirm
+        if (confirm(`您确定要删除分类 "${categoryName}" 吗？\n这将同时删除该分类下的所有链接！`)) {
+            confirmAction();
+        }
+    }
 }
 
 // --- 辅助函数 ---
@@ -467,11 +471,11 @@ function createLinkElement(linkData) {
     return $('<a>').attr({ href: linkData.href || '#', title: linkData.title || linkText, id: elementId, target: '_blank' }).addClass('link').text(linkText);
 }
 
-function clean_hyplink_form() { // 用于“新增链接”按钮
+function clean_hyplink_form() {
     $('#link_id').val(''); $('#name').val(''); $('#href').val('');
     $('#description').val(''); $('#seq').val('');
     $('#item_select').val("0").prop('disabled', false); 
-    $('#select_link_to_edit').val("").parent().hide(); // 确保编辑用下拉框被隐藏并重置
+    $('#select_link_to_edit').val("").parent().hide();
     $('#deleteCurrentLinkButtonInForm').hide();
 }
 
@@ -497,10 +501,19 @@ function editCategoryForm() {
     if (Array.isArray(categories)) {
         var category = categories.find(cat => cat && cat.name === categoryNameData);
         if (category) {
-            $('#item_id').val(category.id); $('#it_title').val(category.name);
+            $('#item_id').val(category.id); 
+            $('#it_title').val(category.name);
             $('#it_seq').val(category.hasOwnProperty('seq') ? category.seq : '');
             $('#it_page').val(category.hasOwnProperty('page') ? category.page : 'fragment-1');
+            // 根据 item_id 是否有值来决定是否显示删除按钮
+            if (category.id) {
+                $('#delete_category_but').show();
+            } else {
+                $('#delete_category_but').hide(); // 理论上编辑时 id 总会有值
+            }
             showModal('editItemDiv');
-        } else { notyf.error('找不到分类 "' + categoryNameData + '" 的详细信息。'); }
+        } else { 
+            notyf.error('找不到分类 "' + categoryNameData + '" 的详细信息。'); 
+        }
     }
 }
