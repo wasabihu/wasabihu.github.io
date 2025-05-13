@@ -32,7 +32,7 @@
     --spacing-lg: 0.1rem;
 
     /* 新增：用于链接最小宽度的变量 (以 em 为单位) */
-    --link-min-width-em: 10em; /* 初始设为 8em，对应大约8个汉字 */
+    --link-min-width-em: 9em; /* 初始设为 8em，对应大约8个汉字 */
 }
 
 /* Basic Styling */
