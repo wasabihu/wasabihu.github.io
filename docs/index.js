@@ -193,7 +193,7 @@ function handleEditLinksInContainerDblClick() {
     var category = categories.find(cat => cat && cat.name === categoryName);
     if (!category) { notyf.error(`找不到名为 "${categoryName}" 的分类数据。`); return; }
     clean_hyplink_form_for_container_edit();
-    $('#item_select').val(category.id).prop('disabled', true);
+    $('#item_select').val(category.id).prop('disabled', false); // 允许用户选择其他分类
     $('#select_link_to_edit').val("").parent().show();
     var selectLinkToEdit = $('#select_link_to_edit');
     selectLinkToEdit.empty().append($('<option>', { value: "", text: "-- 请选择一个链接 --" }));
@@ -314,17 +314,39 @@ function editLink(event) {
         notyf.success('链接 "' + linkName + '" 新增成功！');
         hideModal('linkContent');
         $('#item_select').prop('disabled', false);
-    } else if (linkId && isEditingFlow) {
+    } else if (linkId) {
+        let oldCategoryName = null;
         let linkToUpdate = null;
-        if (links[selectedCategoryName] && Array.isArray(links[selectedCategoryName])) {
-            linkToUpdate = links[selectedCategoryName].find(l => l && l.id === linkId);
+
+        // 查找旧分类中的链接
+        for (const [categoryName, categoryLinks] of Object.entries(links)) {
+            if (Array.isArray(categoryLinks)) {
+                linkToUpdate = categoryLinks.find(l => l && l.id === linkId);
+                if (linkToUpdate) {
+                    oldCategoryName = categoryName;
+                    break;
+                }
+            }
         }
+
         if (!linkToUpdate) {
             notyf.error('错误：未找到要更新的链接！请重新选择。');
             $('#select_link_to_edit').val("").trigger('change'); return;
         }
-        linkToUpdate.href = linkHref; linkToUpdate.title = linkDescription;
-        linkToUpdate.text = linkName; linkToUpdate.seq = String(finalLinkSeq);
+
+        // 如果分类变更，先从旧分类中移除链接
+        if (oldCategoryName && oldCategoryName !== selectedCategoryName) {
+            links[oldCategoryName] = links[oldCategoryName].filter(l => l.id !== linkId);
+            if (!links[selectedCategoryName]) links[selectedCategoryName] = [];
+            links[selectedCategoryName].push(linkToUpdate);
+        }
+
+        // 更新链接数据
+        linkToUpdate.href = linkHref;
+        linkToUpdate.title = linkDescription;
+        linkToUpdate.text = linkName;
+        linkToUpdate.seq = String(finalLinkSeq);
+
         notyf.success('链接 "' + linkName + '" 更新成功！');
         $('#select_link_to_edit option[value="' + linkId + '"]').text(linkName);
         hideModal('linkContent'); // 修改成功后也关闭弹窗
@@ -408,7 +430,10 @@ function editCategory(event) {
        categories.sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
     }
     saveDataToLocalStorage_DM(categories, links, notyf);
-    populateCategorySelect(); generateLinks(); hideModal('editItemDiv'); notyf.success('分类操作成功！');
+    populateCategorySelect(); generateLinks(); hideModal('editItemDiv'); 
+    notyf.success('分类操作成功！');
+    forceAlignNotyfDismissButton(); // 在显示通知后调用
+
 }
 
 // 新增：删除分类的函数
@@ -517,3 +542,48 @@ function editCategoryForm() {
         }
     }
 }
+
+// 这个函数可以在你的 index.js 中定义
+function forceAlignNotyfDismissButton() {
+    // Notyf 通知通常有一个共同的父容器类，或者每个 toast 有一个类
+    // 我们需要找到所有当前可见的 Notyf 通知中的关闭按钮
+    // Notyf 的关闭按钮默认类名通常是 'notyf__dismiss-icon' 或者它可能在 'notyf__action' 内部
+    // 你需要用开发者工具确认实际的类名
+
+    // 延迟执行以确保 DOM 已经更新完毕
+    setTimeout(function() {
+        $('.notyf__toast').each(function() { // 假设每个 toast 都有 .notyf__toast 类
+            var $toast = $(this);
+            var $dismissButton = $toast.find('.notyf__dismiss-icon'); // 尝试找到关闭按钮
+
+            if ($dismissButton.length) {
+                // 强制应用我们期望的样式
+                // 确保 toast 本身是 relative 定位的，这在我们的 notyf-custom.css 中应该已经设置了
+                $toast.css('position', 'relative'); 
+
+                $dismissButton.css({
+                    'position': 'absolute',
+                    'top': '50%',
+                    'right': '10px', // 你可以调整这个值，例如 'var(--spacing-sm)' 但 JS 中直接用 CSS 变量可能不直接支持，除非特殊处理
+                    'transform': 'translateY(-50%)',
+                    'margin-left': '' // 清除可能存在的 margin-left: auto
+                });
+                console.log("Forced style on Notyf dismiss button:", $dismissButton);
+            } else {
+                // 如果找不到 .notyf__dismiss-icon，可能需要检查 Notyf 内部结构
+                // 例如，它可能嵌套在 .notyf__action--dismiss 里面
+                var $actionDismiss = $toast.find('.notyf__action--dismiss');
+                if ($actionDismiss.length) {
+                     $actionDismiss.css({ /* 尝试定位这个容器 */ });
+                     // 或者再找它内部的图标
+                }
+                 console.log("Notyf dismiss icon not found directly in toast:", $toast);
+            }
+        });
+    }, 100); // 100毫秒的延迟，可以根据需要调整
+}
+
+// 然后，在你调用 notyf.success(), notyf.error() 等之后，调用这个函数：
+// 例如，在 editLink 函数成功的分支：
+// notyf.success('链接 "' + linkName + '" 更新成功！');
+// forceAlignNotyfDismissButton();

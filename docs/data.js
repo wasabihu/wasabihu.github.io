@@ -24,16 +24,16 @@ var initialCategories = [
         "page": "fragment-1"
     },
     {
-        "id": "319",
-        "name": "股票",
+        "id": "188048",
+        "name": "AI 智能体",
         "seq": 4,
         "page": "fragment-1"
     },
     {
-        "id": "18039",
-        "name": "工作文档",
-        "seq": 4,
-        "page": "fragment-2"
+        "id": "319",
+        "name": "股票",
+        "seq": 5,
+        "page": "fragment-1"
     },
     {
         "id": "7",
@@ -165,6 +165,12 @@ var initialCategories = [
         "id": "18045",
         "name": "本地服务",
         "seq": 203,
+        "page": "fragment-2"
+    },
+    {
+        "id": "18039",
+        "name": "工作文档",
+        "seq": 204,
         "page": "fragment-2"
     },
     {
@@ -1371,6 +1377,13 @@ var initialLinks = {
             "title": "",
             "text": "advanced-php",
             "seq": "39"
+        },
+        {
+            "id": "link-mao0tw7ju4s0p61",
+            "href": "https://www.freedidi.com/",
+            "title": "",
+            "text": "零度博客",
+            "seq": "1"
         }
     ],
     "安全": [
@@ -3325,24 +3338,10 @@ var initialLinks = {
     ],
     "AI 服务": [
         {
-            "id": "link-manm8nlsepe0pu6",
-            "href": "https://chatgpt.com/g/g-681882eef7fc8191a3b40ee91f8c210d-she-jiao-mei-ti-hui-fu-ping-lun-shi",
-            "title": "",
-            "text": "社交媒体回复评论师",
-            "seq": "1"
-        },
-        {
             "id": "link-manmd89e5yd36iy",
             "href": "https://gemini.google.com/",
             "title": "",
             "text": "GoogleGemini",
-            "seq": "42"
-        },
-        {
-            "id": "link-manmj2ui0qyu2pl",
-            "href": "https://chatgpt.com/share/681cc349-7264-800d-aaed-d0d9cf0da620",
-            "title": "",
-            "text": "嘉丽老师回复评论",
             "seq": "42"
         },
         {
@@ -3373,6 +3372,22 @@ var initialLinks = {
             "href": "https://www.coze.cn/space/7489759802156466176/develop",
             "title": "",
             "text": "扣子AI",
+            "seq": "42"
+        }
+    ],
+    "AI 智能体": [
+        {
+            "id": "link-manm8nlsepe0pu6",
+            "href": "https://chatgpt.com/g/g-681882eef7fc8191a3b40ee91f8c210d-she-jiao-mei-ti-hui-fu-ping-lun-shi",
+            "title": "",
+            "text": "社交媒体回复评论师",
+            "seq": "1"
+        },
+        {
+            "id": "link-manmj2ui0qyu2pl",
+            "href": "https://chatgpt.com/share/681cc349-7264-800d-aaed-d0d9cf0da620",
+            "title": "",
+            "text": "嘉丽老师回复评论",
             "seq": "42"
         }
     ]
