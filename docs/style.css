@@ -47,7 +47,8 @@ body {
 #page {
     width: 90%;
     max-width: 1200px;
-    margin: var(--spacing-lg) auto;
+    margin: 2rem auto;
+    padding-bottom: 2rem;
     background-color: var(--medium-bg);
     box-shadow: var(--box-shadow);
     border-radius: 0.5rem;
@@ -154,8 +155,27 @@ main#content {
 
 /* --- Tabs Styling --- */
 .tabs { margin-top: var(--spacing-md); margin-bottom: var(--spacing-lg); border: none; }
-.tabs .ui-tabs-nav { list-style: none; padding: 0; margin: 0; display: flex; background-color: var(--tab-nav-bg); border-bottom: 1px solid var(--primary-color); overflow-x: auto; white-space: nowrap; }
-.tabs .ui-tabs-nav li.ui-tabs-tab { margin: 0 var(--spacing-xs) 0 0; padding: 0; background: var(--tab-inactive-bg); border: 1px solid var(--light-border); border-bottom: none; color: var(--text-color); transition: background-color 0.2s ease, color 0.2s ease; border-radius: 0.25rem 0.25rem 0 0; }
+.tabs .ui-tabs-nav { 
+    list-style: none; 
+    padding: var(--spacing-sm); 
+    margin: 0; 
+    display: flex; 
+    background: linear-gradient(to bottom, rgba(0, 255, 157, 0.05), transparent); 
+    border-bottom: 1px solid var(--primary-color); 
+    overflow-x: auto; 
+    white-space: nowrap; 
+}
+.tabs .ui-tabs-nav li.ui-tabs-tab { 
+    margin: 0 var(--spacing-xs) 0 0; 
+    padding: 0; 
+    background: linear-gradient(45deg, var(--tab-inactive-bg), var(--input-bg)); 
+    border: 1px solid var(--light-border); 
+    border-bottom: none; 
+    color: var(--text-color); 
+    transition: background-color 0.2s ease, color 0.2s ease; 
+    border-radius: 0.25rem 0.25rem 0 0; 
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2); 
+}
 .tabs .ui-tabs-nav li.ui-tabs-tab a.ui-tabs-anchor { display: block; padding: var(--spacing-sm) var(--spacing-md); text-decoration: none; color: inherit; outline: none; font-weight: normal; }
 .tabs .ui-tabs-nav li.ui-tabs-tab:hover, .tabs .ui-tabs-nav li.ui-tabs-tab.ui-state-hover { background: var(--light-border); color: var(--primary-color); }
 .tabs .ui-tabs-nav li.ui-tabs-tab.ui-tabs-active.ui-state-active { background: var(--tab-active-bg); border-color: var(--primary-color); border-bottom: 1px solid var(--tab-active-bg); position: relative; }
@@ -240,17 +260,27 @@ main#content {
 
 /* Modals */
 .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.85); }
-.modal-form { background-color: var(--medium-bg); margin: 10% auto; padding: var(--spacing-lg); border: 1px solid var(--light-border); border-radius: 0.5rem; width: 90%; max-width: 500px; box-shadow: var(--box-shadow); }
+.modal-form { 
+    background: linear-gradient(135deg, var(--medium-bg), rgba(20, 20, 40, 0.95)); 
+    margin: 10% auto; 
+    padding: var(--spacing-lg); 
+    border: 1px solid rgba(0, 255, 157, 0.1); 
+    border-radius: 0.5rem; 
+    width: 90%; 
+    max-width: 500px; 
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 255, 157, 0.1); 
+    backdrop-filter: blur(10px); 
+}
 .form-group { margin-bottom: var(--spacing-md); }
 .form-group label { display: block; margin-bottom: var(--spacing-sm); font-weight: bold; color: var(--primary-color); }
 .form-group input[type="text"], .form-group input[type="url"], .form-group input[type="number"], .form-group select { 
     width: 100%; 
     padding: var(--spacing-sm) var(--spacing-md); 
-    border: 1px solid var(--light-border); 
+    border: 1px solid rgba(255, 255, 255, 0.1); 
     border-radius: 0.25rem; 
     font-family: var(--font-family); 
     font-size: var(--font-size-base); 
-    background-color: var(--input-bg); 
+    background: linear-gradient(to right, rgba(20, 20, 40, 0.95), rgba(15, 15, 26, 0.95)); 
     color: var(--text-color); 
     transition: border-color 0.3s ease, box-shadow 0.3s ease; 
     backdrop-filter: blur(4px);
@@ -264,8 +294,15 @@ main#content {
 .form-actions::after { content: ""; clear: both; display: table; }
 
 /* Footer */
-.footer { text-align: center; padding: var(--spacing-lg); background-color: var(--darker-bg); color: var(--text-color); font-size: 0.9em; border-top: 2px solid var(--primary-color); margin-top: var(--spacing-lg); }
-
+.footer { 
+    text-align: center; 
+    padding: var(--spacing-lg); 
+    background: linear-gradient(to top, var(--darker-bg), rgba(5, 5, 8, 0.95)); 
+    color: var(--text-color); 
+    font-size: 0.9em; 
+    border-top: 1px solid rgba(0, 255, 157, 0.2); 
+    margin-top: var(--spacing-lg); 
+}
 
 /* =================================== */
 /* ===== RESPONSIVE DESIGN BELOW ===== */
@@ -291,8 +328,10 @@ main#content {
     }
     
     .modal-form { 
+        margin: 5% auto; 
+        max-height: 90vh; 
+        overflow-y: auto; 
         width: 95%; 
-        margin: var(--spacing-lg) auto; 
         padding: var(--spacing-md); 
     }
         
@@ -326,6 +365,10 @@ main#content {
         padding: 0.6em 1em;
     }
     
+    .tabs .ui-tabs-nav {
+        padding: var(--spacing-xs);
+    }
+
     .category-title {
         font-size: 1.1rem;
         padding-left: 1.6em;  /* 移动端稍微减小左侧内边距 */
@@ -337,8 +380,8 @@ main#content {
 
 /* 添加滚动条样式 */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -346,16 +389,22 @@ main#content {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 4px;
+    background: linear-gradient(
+        to bottom,
+        var(--primary-color),
+        var(--primary-color-dark)
+    );
+    border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--primary-color-dark);
 }
 
+/* 优化UI组件背景 */
 .ui-widget-content {
-    background: #ecbfbf;
+    background: var(--medium-bg);
+    border-color: var(--light-border);
 }
 
 .ui-widget {
