@@ -22,6 +22,16 @@ $(document).ready(function() {
     });
     console.log("Notyf initialized.");
 
+    // 添加清除本地存储的功能
+    $('#clearStorageButton').click(function() {
+        if (confirm('确定要清除所有本地存储的数据吗？此操作不可撤销！')) {
+            localStorage.clear();
+            notyf.success('本地存储已清除');
+            // 刷新页面以更新显示
+            location.reload();
+        }
+    });
+
     // 1. 加載數據
     const loadedDataResult = loadDataFromLocalStorage_DM();
     if (loadedDataResult.success && loadedDataResult.categories && loadedDataResult.links) {
