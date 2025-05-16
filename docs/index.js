@@ -525,8 +525,34 @@ function settingLastSeq(selectedCategoryId) {
     }
     $('#seq').val(seq);
 }
-function showModal(modalId) { $('#' + modalId).show(); }
-function hideModal(modalId) { $('#' + modalId).hide(); }
+
+function showModal(modalId) {
+    if (typeof modalId === 'string' && !modalId.startsWith('#')) {
+        modalId = '#' + modalId;
+    }
+    $(modalId).fadeIn(300).addClass('show');
+
+    // 添加 ESC 键关闭事件
+    $(document).on('keydown.modal', function(e) {
+        if (e.key === 'Escape') {
+            if (modalId === '#linkContent') {
+                $('#cancelLinkModalButton').click();
+            } else if (modalId === '#editItemDiv') {
+                $('#cancelCategoryModalButton').click();
+            }
+        }
+    });
+}
+
+function hideModal(modalId) {
+    if (typeof modalId === 'string' && !modalId.startsWith('#')) {
+        modalId = '#' + modalId;
+    }
+    $(modalId).removeClass('show').fadeOut(200);
+    
+    // 移除 ESC 键事件绑定
+    $(document).off('keydown.modal');
+}
 
 function editCategoryForm() {
     var categoryTitleElement = $(this);
@@ -582,12 +608,7 @@ function forceAlignNotyfDismissButton() {
             } else {
                 // 如果找不到 .notyf__dismiss-icon，可能需要检查 Notyf 内部结构
                 // 例如，它可能嵌套在 .notyf__action--dismiss 里面
-                var $actionDismiss = $toast.find('.notyf__action--dismiss');
-                if ($actionDismiss.length) {
-                     $actionDismiss.css({ /* 尝试定位这个容器 */ });
-                     // 或者再找它内部的图标
-                }
-                 console.log("Notyf dismiss icon not found directly in toast:", $toast);
+                // 或者再找它内部的图标
             }
         });
     }, 100); // 100毫秒的延迟，可以根据需要调整
