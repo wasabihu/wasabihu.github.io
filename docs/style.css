@@ -176,7 +176,7 @@ main#content {
     color: var(--primary-color); 
     margin-bottom: var(--spacing-md); 
     padding: var(--spacing-sm) var(--spacing-md);
-    padding-left: 1.5em;
+    padding-left: 1.8em;  /* 调整左侧内边距 */
     border-left: 3px solid var(--primary-color);
     background: linear-gradient(
         to right,
@@ -185,13 +185,17 @@ main#content {
     );
     position: relative;
     text-shadow: 0 0 3px rgba(0, 255, 157, 0.3);
+    display: flex;      /* 使用flex布局 */
+    align-items: center; /* 垂直居中 */
 }
 .category-title::before {
     content: '>';
     position: absolute;
-    left: 0.5em;
+    left: 0.6em;      /* 调整符号位置 */
     color: var(--primary-color);
     opacity: 0.8;
+    font-size: 1em;   /* 确保符号大小合适 */
+    line-height: 1;   /* 调整行高 */
 }
 
 .links-container { 
@@ -301,19 +305,20 @@ main#content {
     .form-actions .btn:last-child { margin-bottom: 0; }
 
     #main-action-buttons {
-        display: flex;         
-        flex-direction: column; 
-        align-items: center;    
-        gap: var(--spacing-sm); 
-        margin-bottom: var(--spacing-lg); 
+        display: grid;
+        grid-template-columns: 1fr 1fr;  /* 一行两列 */
+        gap: 0.5rem;                     /* 按钮之间的间距 */
+        padding: 0 0.5rem;              /* 两边留点边距 */
+        margin-bottom: var(--spacing-md);
     }
+
     #main-action-buttons .btn {
-        width: 90%;       
-        max-width: 320px; 
-        margin: 0 auto;   
-        background-color: var(--primary-color);
-        color: var(--darker-bg);
-        border-color: var(--primary-color);
+        width: 100%;
+        max-width: none;          /* 移除最大宽度限制 */
+        margin: 0;               /* 移除外边距 */
+        font-size: 0.8rem;       /* 缩小字体 */
+        padding: 0.5em 0.8em;    /* 减小内边距 */
+        white-space: nowrap;     /* 文字不换行 */
     }
 
     .btn {
@@ -323,7 +328,10 @@ main#content {
     
     .category-title {
         font-size: 1.1rem;
-        padding-left: 0.8em;
+        padding-left: 1.6em;  /* 移动端稍微减小左侧内边距 */
+    }
+    .category-title::before {
+        left: 0.5em;        /* 移动端调整符号位置 */
     }
 }
 
