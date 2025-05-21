@@ -1390,6 +1390,13 @@ var initialLinks = {
             "seq": "222"
         },
         {
+            "id": "108784",
+            "href": "http://www.yan-wei.net/",
+            "title": "",
+            "text": "一键排版",
+            "seq": "224"
+        },
+        {
             "id": "109067",
             "href": "http://tool.chinaz.com/tools/unicode.aspx",
             "title": "",
