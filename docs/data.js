@@ -632,6 +632,20 @@ var initialLinks = {
             "title": "",
             "text": "Gmail",
             "seq": "42"
+        },
+        {
+            "id": "link-maw5923z7m0ssgq",
+            "href": "https://localsend.org/download",
+            "title": "",
+            "text": "localsend传输",
+            "seq": "4"
+        },
+        {
+            "id": "link-maw5hw2k0txiceg",
+            "href": "https://channels.weixin.qq.com/platform",
+            "title": "",
+            "text": "视频号助手",
+            "seq": "42"
         }
     ],
     "网上商城": [
@@ -1278,13 +1292,6 @@ var initialLinks = {
             "seq": "194"
         },
         {
-            "id": "179",
-            "href": "http://browsershots.org/",
-            "title": "",
-            "text": "不同系统下浏览器效果",
-            "seq": "196"
-        },
-        {
             "id": "180",
             "href": "http://www.lanrentuku.com/",
             "title": "",
@@ -1360,13 +1367,6 @@ var initialLinks = {
             "title": "",
             "text": "glyphish图标",
             "seq": "218"
-        },
-        {
-            "id": "107463",
-            "href": "http://wiki.opensns.qq.com/wiki/%E3%80%90QQ%E7%99%BB%E5%BD%95%E3%80%91%E5%85%AC%E5%85%B1%E8%BF%94%E5%9B%9E%E7%A0%81%E8%AF%B4%E6%98%8E",
-            "title": "",
-            "text": "QQ登录_公共返回码说明",
-            "seq": "219"
         },
         {
             "id": "107465",
@@ -3200,6 +3200,13 @@ var initialLinks = {
             "title": "",
             "text": "反向建模师",
             "seq": "3"
+        },
+        {
+            "id": "link-mawkrc4ekbmnq1l",
+            "href": "https://chatgpt.com/g/g-68258b286e448191938736b5512732fd-you-xiu-wen-an-zhi-neng-ti",
+            "title": "",
+            "text": "优秀文案智能体",
+            "seq": "42"
         }
     ]
 };
