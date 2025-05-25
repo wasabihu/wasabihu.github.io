@@ -253,13 +253,6 @@ var initialLinks = {
             "seq": "22"
         },
         {
-            "id": "108823",
-            "href": "http://git.oschina.net/wasa/wiki/wikis/home",
-            "title": "",
-            "text": "oscWiki",
-            "seq": "28"
-        },
-        {
             "id": "108068",
             "href": "https://github.com/wasabihu/wasabi/wiki",
             "title": "",
@@ -293,6 +286,13 @@ var initialLinks = {
             "title": "",
             "text": "极客时间",
             "seq": "41"
+        },
+        {
+            "id": "link-maywokjtilsgieq",
+            "href": "https://www.tiktok.com/",
+            "title": "",
+            "text": "Tiktok",
+            "seq": "42"
         }
     ],
     "eolinker日常": [
@@ -1921,6 +1921,13 @@ var initialLinks = {
             "title": "",
             "text": "2015广州10KM 官方网站",
             "seq": "38"
+        },
+        {
+            "id": "108823",
+            "href": "http://git.oschina.net/wasa/wiki/wikis/home",
+            "title": "",
+            "text": "oscWiki",
+            "seq": "28"
         }
     ],
     "关注的开源项目": [
@@ -2997,6 +3004,13 @@ var initialLinks = {
             "title": "",
             "text": "优秀文案智能体",
             "seq": "42"
+        },
+        {
+            "id": "link-mazdc09yuz7dx7l",
+            "href": "https://chatgpt.com/g/g-682f1be6ad7881919cabcc083e549a70-da-dao-zhi-jian",
+            "title": "",
+            "text": "大道至簡",
+            "seq": "43"
         }
     ]
 };
