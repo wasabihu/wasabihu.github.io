@@ -646,6 +646,13 @@ var initialLinks = {
             "title": "",
             "text": "视频号助手",
             "seq": "42"
+        },
+        {
+            "id": "link-mb1zs62m0c50xjd",
+            "href": "https://mp.weixin.qq.com/",
+            "title": "",
+            "text": "公众号平台",
+            "seq": "43"
         }
     ],
     "网上商城": [
@@ -1148,25 +1155,11 @@ var initialLinks = {
             "seq": "19"
         },
         {
-            "id": "108060",
-            "href": "http://chenxiaoyu.org/",
-            "title": "",
-            "text": "smallfish blog",
-            "seq": "22"
-        },
-        {
             "id": "108107",
             "href": "http://www.wzxue.com/category/redis/",
             "title": "",
             "text": "麦子迈–redis",
             "seq": "25"
-        },
-        {
-            "id": "108174",
-            "href": "http://www.waitalone.cn/",
-            "title": "",
-            "text": "独自等待-信息安全",
-            "seq": "29"
         },
         {
             "id": "108550",
@@ -1264,13 +1257,6 @@ var initialLinks = {
             "seq": "11"
         },
         {
-            "id": "174",
-            "href": "http://www.flickr.com/",
-            "title": "",
-            "text": "flickr相冊",
-            "seq": "191"
-        },
-        {
             "id": "175",
             "href": "http://tool.httpcn.com/Html/Zi/34/KOKOPWCQAZXVCQBA.shtml",
             "title": "",
@@ -1285,13 +1271,6 @@ var initialLinks = {
             "seq": "193"
         },
         {
-            "id": "177",
-            "href": "http://www.ijavascript.cn/",
-            "title": "",
-            "text": "爱JavaScript",
-            "seq": "194"
-        },
-        {
             "id": "180",
             "href": "http://www.lanrentuku.com/",
             "title": "",
@@ -1299,46 +1278,11 @@ var initialLinks = {
             "seq": "197"
         },
         {
-            "id": "181",
-            "href": "http://www.google.com/analytics/zh-TW/",
-            "title": "",
-            "text": "Google Analytics",
-            "seq": "198"
-        },
-        {
-            "id": "187",
-            "href": "http://wiki.dev.renren.com/wiki/%E6%94%BE%E7%BD%AEConnect%E7%99%BB%E5%BD%95%E6%8C%89%E9%92%AE",
-            "title": "",
-            "text": "人人連接wiki",
-            "seq": "204"
-        },
-        {
             "id": "98415",
             "href": "http://www.zdic.net/",
             "title": "",
             "text": "漢典",
             "seq": "208"
-        },
-        {
-            "id": "105268",
-            "href": "http://code.google.com/p/google-api-php-client/wiki/Samples#URL_Shortener_API",
-            "title": "",
-            "text": "Google APIs",
-            "seq": "209"
-        },
-        {
-            "id": "105350",
-            "href": "http://dev.t.qq.com/",
-            "title": "",
-            "text": "腾讯微博开放平台",
-            "seq": "211"
-        },
-        {
-            "id": "107096",
-            "href": "http://www.gbin1.com/",
-            "title": " - 分享前端及其web开发相关技术HTML5|CSS3|JS|jQuery|jQuery插件|UI|Mobile|Demo",
-            "text": "GBin1.com",
-            "seq": "213"
         },
         {
             "id": "107419",
@@ -1355,25 +1299,11 @@ var initialLinks = {
             "seq": "215"
         },
         {
-            "id": "107453",
-            "href": "http://wiki.opensns.qq.com/wiki/%E3%80%90QQ%E7%99%BB%E5%BD%95%E3%80%91%E6%96%87%E6%A1%A3%E8%B5%84%E6%BA%90",
-            "title": "",
-            "text": "QQ登入文档",
-            "seq": "217"
-        },
-        {
             "id": "107456",
             "href": "http://www.glyphish.com/",
             "title": "",
             "text": "glyphish图标",
             "seq": "218"
-        },
-        {
-            "id": "107465",
-            "href": "http://www.coreseek.cn/",
-            "title": "",
-            "text": "Coreseek中文检索引擎",
-            "seq": "220"
         },
         {
             "id": "108026",
@@ -1416,6 +1346,13 @@ var initialLinks = {
             "title": "",
             "text": "PHP在线执行",
             "seq": "228"
+        },
+        {
+            "id": "link-mb4rkgfrs6ggy5c",
+            "href": "https://tableconvert.com/zh-cn/excel-to-json",
+            "title": "",
+            "text": "Excel转JSON",
+            "seq": "43"
         }
     ],
     "前端开发": [
@@ -1753,20 +1690,6 @@ var initialLinks = {
             "seq": "183"
         },
         {
-            "id": "108717",
-            "href": "http://www.w3cfuns.com/",
-            "title": "",
-            "text": "W3C FUNS",
-            "seq": "184"
-        },
-        {
-            "id": "108761",
-            "href": "http://www.my97.net/dp/demo/",
-            "title": "",
-            "text": "My97日历控件",
-            "seq": "185"
-        },
-        {
             "id": "109078",
             "href": "https://packagist.org/",
             "title": "",
@@ -1775,13 +1698,6 @@ var initialLinks = {
         }
     ],
     "Wasabi": [
-        {
-            "id": "3276",
-            "href": "http://208.94.244.98/bt/thread.php?fid=16",
-            "title": "www.aisex.com",
-            "text": "亞洲BT",
-            "seq": "1"
-        },
         {
             "id": "3277",
             "href": "https://twitter.com/#!/feelinglucky",
@@ -1802,13 +1718,6 @@ var initialLinks = {
             "title": "http://warmfund.googlecode.com/svn/trunk/",
             "text": "warmfund项目",
             "seq": "4"
-        },
-        {
-            "id": "109043",
-            "href": "https://youer.gzzk.cn/",
-            "title": "",
-            "text": "广州市教育部门办幼儿园电脑派位服务平台",
-            "seq": "11"
         },
         {
             "id": "105337",
@@ -1832,32 +1741,11 @@ var initialLinks = {
             "seq": "23"
         },
         {
-            "id": "107569",
-            "href": "http://hw438.com/a/yazhouBTxiao/",
-            "title": "",
-            "text": "BT2",
-            "seq": "24"
-        },
-        {
             "id": "107928",
             "href": "http://www.ccb.com/",
             "title": "",
             "text": "建设银行",
             "seq": "26"
-        },
-        {
-            "id": "108165",
-            "href": "http://ac168.info/bt/thread.php?fid=4",
-            "title": "",
-            "text": "BT3",
-            "seq": "28"
-        },
-        {
-            "id": "108567",
-            "href": "http://git.oschina.net/progit/",
-            "title": "",
-            "text": "Pro Git（中文版）",
-            "seq": "29"
         },
         {
             "id": "108580",
@@ -1907,20 +1795,6 @@ var initialLinks = {
             "title": "",
             "text": "公积金初启密码",
             "seq": "36"
-        },
-        {
-            "id": "108728",
-            "href": "http://guangzhou.chashebao.com/gongjijin/13125.html",
-            "title": "",
-            "text": "广州租房提取公积金流程",
-            "seq": "37"
-        },
-        {
-            "id": "108738",
-            "href": "http://www.guangzhou10k.com/",
-            "title": "",
-            "text": "2015广州10KM 官方网站",
-            "seq": "38"
         },
         {
             "id": "108823",
@@ -2049,13 +1923,6 @@ var initialLinks = {
             "title": "",
             "text": "shadowsocks-go",
             "seq": "42"
-        },
-        {
-            "id": "108877",
-            "href": "https://github.com/justjavac/free-programming-books-zh_CN#go",
-            "title": "",
-            "text": "免费的编程中文书籍索引",
-            "seq": "44"
         },
         {
             "id": "108968",
@@ -2192,38 +2059,10 @@ var initialLinks = {
             "seq": "2"
         },
         {
-            "id": "107500",
-            "href": "http://www.infoq.com/cn/presentations/ywh-build-high-performance-weibo#3970668-tsina-1-38116-4940258fac58681d93622513463cbd0b",
-            "title": "",
-            "text": "再谈新浪微博架构",
-            "seq": "3"
-        },
-        {
-            "id": "107514",
-            "href": "http://club.topsage.com/thread-2386780-1-7.html",
-            "title": "",
-            "text": "Perl 脚本实现交互式命令行管理与测试自动化",
-            "seq": "5"
-        },
-        {
-            "id": "107581",
-            "href": "http://www.infoq.com/cn/presentations/Beautiful-architecture-development-change",
-            "title": "",
-            "text": "美丽说的架构发展与变迁",
-            "seq": "6"
-        },
-        {
             "id": "107582",
             "href": "http://www.infoq.com/cn/presentations/tfl-sina-weibo-platform-redis-practice?utm_source=infoq&utm_medium=related_content_link&utm_campaign=relatedContent_presentations_clk",
             "title": "",
             "text": "新浪微博开放平台中的Redis实践",
-            "seq": "11"
-        },
-        {
-            "id": "107703",
-            "href": "http://www.mycodes.net/74/2671.htm",
-            "title": "",
-            "text": "让PHP跑在Mac OS X中",
             "seq": "11"
         },
         {
@@ -2241,20 +2080,6 @@ var initialLinks = {
             "seq": "11"
         },
         {
-            "id": "107583",
-            "href": "http://my.oschina.net/zhengyun/blog/108420",
-            "title": "",
-            "text": "PHP-FPM模式下可怕的 MongoDB-PHP-Driver",
-            "seq": "12"
-        },
-        {
-            "id": "107636",
-            "href": "http://blog.sciencenet.cn/blog-287179-520836.html",
-            "title": "",
-            "text": "借水浒传故事，释决策树思路---趣味数据挖掘",
-            "seq": "13"
-        },
-        {
             "id": "107702",
             "href": "http://timyang.net/tag/redis/",
             "title": "",
@@ -2262,25 +2087,11 @@ var initialLinks = {
             "seq": "15"
         },
         {
-            "id": "107915",
-            "href": "http://blog.mosil.biz/2012/09/psr-2-basic-coding-standard/",
-            "title": "",
-            "text": "PSR-2 Coding Style Guide",
-            "seq": "16"
-        },
-        {
             "id": "107917",
             "href": "http://blog.csdn.net/linvo",
             "title": "",
             "text": "Linvo's blog",
             "seq": "17"
-        },
-        {
-            "id": "107931",
-            "href": "http://hi.baidu.com/thinkinginlamp/item/753d86383545d10fcfb9fe14",
-            "title": "",
-            "text": "尝试使用GraphicsMagick的缩略图功能",
-            "seq": "18"
         },
         {
             "id": "107905",
@@ -2318,13 +2129,6 @@ var initialLinks = {
             "seq": "24"
         },
         {
-            "id": "107998",
-            "href": "http://www.worldhello.net/gotgithub/index.html",
-            "title": "",
-            "text": "GotGitHub",
-            "seq": "25"
-        },
-        {
             "id": "108034",
             "href": "http://www.cnblogs.com/hejunrex/archive/2011/11/17/2252193.html",
             "title": "",
@@ -2351,13 +2155,6 @@ var initialLinks = {
             "title": "",
             "text": "学习CSS布局",
             "seq": "30"
-        },
-        {
-            "id": "108328",
-            "href": "http://blog.sina.com.cn/s/blog_6ce00d7b0100ubw3.html",
-            "title": "",
-            "text": "任务系统设计思路",
-            "seq": "31"
         },
         {
             "id": "108409",
@@ -3010,6 +2807,13 @@ var initialLinks = {
             "href": "https://chatgpt.com/g/g-682f1be6ad7881919cabcc083e549a70-da-dao-zhi-jian",
             "title": "",
             "text": "大道至簡",
+            "seq": "43"
+        },
+        {
+            "id": "link-mb4hcxc83g74xe2",
+            "href": "https://chatgpt.com/g/g-6833d31abd388191bb64cc96f28464db-biao-ti-dang",
+            "title": "",
+            "text": "标题党",
             "seq": "43"
         }
     ]
