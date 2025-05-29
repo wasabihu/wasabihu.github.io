@@ -653,6 +653,13 @@ var initialLinks = {
             "title": "",
             "text": "公众号平台",
             "seq": "43"
+        },
+        {
+            "id": "link-mb60dpjvx8aimva",
+            "href": "https://claude.ai/",
+            "title": "",
+            "text": "claudeAI",
+            "seq": "43"
         }
     ],
     "网上商城": [
@@ -1353,6 +1360,13 @@ var initialLinks = {
             "title": "",
             "text": "Excel转JSON",
             "seq": "43"
+        },
+        {
+            "id": "link-mb50tub1ri6v06d",
+            "href": "https://www.minimax.io/audio",
+            "title": "",
+            "text": "minimax音频",
+            "seq": "43"
         }
     ],
     "前端开发": [
@@ -1550,20 +1564,6 @@ var initialLinks = {
     ],
     "官方技术网站": [
         {
-            "id": "108110",
-            "href": "http://www.infoq.com/cn/",
-            "title": "",
-            "text": "InfoQ",
-            "seq": "2"
-        },
-        {
-            "id": "108762",
-            "href": "https://github.com/aui/artDialog",
-            "title": "",
-            "text": "artDialog弹出框",
-            "seq": "11"
-        },
-        {
             "id": "69",
             "href": "http://cn.php.net/manual/zh/index.php",
             "title": "",
@@ -1611,13 +1611,6 @@ var initialLinks = {
             "title": "",
             "text": "w3school的PHP手册",
             "seq": "167"
-        },
-        {
-            "id": "68230",
-            "href": "http://www.ecshop.com/",
-            "title": "",
-            "text": "ECSHOP",
-            "seq": "168"
         },
         {
             "id": "68353",
@@ -1674,13 +1667,6 @@ var initialLinks = {
             "title": "",
             "text": "开源报表",
             "seq": "181"
-        },
-        {
-            "id": "107995",
-            "href": "http://faq.comsenz.com/library/UCenter/interface/",
-            "title": "",
-            "text": "UCenter 接口文档",
-            "seq": "182"
         },
         {
             "id": "108588",
