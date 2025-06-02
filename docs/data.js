@@ -755,6 +755,13 @@ var initialLinks = {
             "title": "wasabihu/nKenbli9394",
             "text": "天下足球网",
             "seq": "65"
+        },
+        {
+            "id": "link-mbaj3kjttqbwrv0",
+            "href": "https://www.bilibili.com/",
+            "title": "",
+            "text": "哔哩哔哩",
+            "seq": "43"
         }
     ],
     "openResty": [
@@ -1834,13 +1841,6 @@ var initialLinks = {
             "seq": "14"
         },
         {
-            "id": "107913",
-            "href": "https://github.com/usmanhalalit/charisma",
-            "title": "demo: http://usman.it/themes/charisma/",
-            "text": "charisma后台开源模板",
-            "seq": "15"
-        },
-        {
             "id": "107933",
             "href": "https://github.com/jeansfish/RFC6749.zh-cn/blob/master/TableofContents.md",
             "title": "",
@@ -1860,13 +1860,6 @@ var initialLinks = {
             "title": "",
             "text": "centos_iso镜像站",
             "seq": "20"
-        },
-        {
-            "id": "108152",
-            "href": "https://github.com/springside/springside4/wiki/redis",
-            "title": "",
-            "text": "Redis常识_江南白衣",
-            "seq": "29"
         },
         {
             "id": "108181",
@@ -2308,20 +2301,6 @@ var initialLinks = {
             "title": "",
             "text": "利用 oEmbed访问第三方内容",
             "seq": "2"
-        },
-        {
-            "id": "65905",
-            "href": "http://www.ccvita.com/257.html",
-            "title": "",
-            "text": "Linux下的Memcache安装",
-            "seq": "3"
-        },
-        {
-            "id": "107493",
-            "href": "http://www.macx.cn/",
-            "title": "",
-            "text": "macx.cn",
-            "seq": "4"
         },
         {
             "id": "107977",
@@ -2800,6 +2779,41 @@ var initialLinks = {
             "href": "https://chatgpt.com/g/g-6833d31abd388191bb64cc96f28464db-biao-ti-dang",
             "title": "",
             "text": "标题党",
+            "seq": "43"
+        },
+        {
+            "id": "link-mb7suc57pqlqd1j",
+            "href": "https://chatgpt.com/g/g-6836e26b032481918d0bcc8269ab8e8b-kua-kua-da-shi",
+            "title": "",
+            "text": "夸夸大师",
+            "seq": "43"
+        },
+        {
+            "id": "link-mb7zy9uhb92s4dr",
+            "href": "https://chatgpt.com/g/g-6837073cbda08191bd225118ed2d8d65-si-se-wen-an-da-shi",
+            "title": "",
+            "text": "四色文案大师",
+            "seq": "43"
+        },
+        {
+            "id": "link-mbblhy1g5ocx1tw",
+            "href": "https://langgptai.feishu.cn/wiki/Pjh4w7O2aiM2XtkmwOFcGoMonGg",
+            "title": "",
+            "text": "高质Prompt合集",
+            "seq": "43"
+        },
+        {
+            "id": "link-mbeg1eytx46pnyk",
+            "href": "https://chatgpt.com/g/g-Apzuylaqk-langgpt-ti-shi-ci-zhuan-jia",
+            "title": "",
+            "text": "提示词专家",
+            "seq": "43"
+        },
+        {
+            "id": "link-mbeg6lhmw5qzcgp",
+            "href": "https://chatgpt.com/g/g-sRQtxpN4C-smartgpt-5",
+            "title": "永不变懒，聪明勤奋的GPT！提前体验 GPT-5 的爽感！",
+            "text": "SmartGPT-5",
             "seq": "43"
         }
     ]
