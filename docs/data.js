@@ -2815,6 +2815,20 @@ var initialLinks = {
             "title": "永不变懒，聪明勤奋的GPT！提前体验 GPT-5 的爽感！",
             "text": "SmartGPT-5",
             "seq": "43"
+        },
+        {
+            "id": "link-mbeiv5phinbxta5",
+            "href": "https://chatgpt.com/g/g-2V90YGvVD-fan-yi-da-xiao-jie",
+            "title": "",
+            "text": "翻译大小姐",
+            "seq": "44"
+        },
+        {
+            "id": "link-mbf4p9fm82qwv3e",
+            "href": "https://chatgpt.com/g/g-683a617e6a908191bb30f4b92f34aad6",
+            "title": "",
+            "text": "单场面编剧大师",
+            "seq": "43"
         }
     ]
 };
