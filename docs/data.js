@@ -1374,6 +1374,13 @@ var initialLinks = {
             "title": "",
             "text": "minimax音频",
             "seq": "43"
+        },
+        {
+            "id": "link-mbpw3jnb2q8h763",
+            "href": "https://tinify.cn/",
+            "title": "",
+            "text": "图片压缩",
+            "seq": "43"
         }
     ],
     "前端开发": [
@@ -2829,6 +2836,20 @@ var initialLinks = {
             "title": "",
             "text": "单场面编剧大师",
             "seq": "43"
+        },
+        {
+            "id": "link-mbgjs352bnivtfv",
+            "href": "https://chatgpt.com/g/g-683ef642f57c8191b072b1becbe4810b-ti-shi-ci-zhuan-jia",
+            "title": "",
+            "text": "提示词专家2",
+            "seq": "46"
+        },
+        {
+            "id": "link-mbhbfnud03jegfp",
+            "href": "https://chatgpt.com/g/g-683fa75deea08191846c92f8b95bf122-ben-zhi-si-wei-aizhu-shou",
+            "title": "",
+            "text": "本质思维AI助手",
+            "seq": "47"
         }
     ]
 };
