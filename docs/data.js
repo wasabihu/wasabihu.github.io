@@ -1720,13 +1720,6 @@ var initialLinks = {
             "seq": "4"
         },
         {
-            "id": "105337",
-            "href": "http://v.163.com/special/opencourse/paradigms.html",
-            "title": "",
-            "text": "公开课：编程范式",
-            "seq": "19"
-        },
-        {
             "id": "107094",
             "href": "http://www.guangzhou-marathon.com/",
             "title": "",
@@ -2850,6 +2843,13 @@ var initialLinks = {
             "title": "",
             "text": "本质思维AI助手",
             "seq": "47"
+        },
+        {
+            "id": "link-mc5ylkdd35eleo1",
+            "href": "https://chatgpt.com/g/g-68395fa2bdf48191b91c2df767640c1d-ipji-yin-fen-xi-shi",
+            "title": "",
+            "text": "IP基因分析师",
+            "seq": "43"
         }
     ]
 };
