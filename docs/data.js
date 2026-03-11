@@ -49,7 +49,7 @@ var initialCategories = [
     },
     {
         "id": "5",
-        "name": "常去網站",
+        "name": "常去网站",
         "seq": 12,
         "page": "fragment-1"
     },

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -6,12 +6,14 @@
     <title>网上收藏夹</title>
 
     <link rel="icon" type="image/png" sizes="48x48" href="favicon.png">
-    
- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script src="./tabConfig.js"></script>
     <script src="./data.js"></script>
-    <script src="./dataManager.js"></script> 
+    <script src="./textUtils.js"></script>
+    <script src="./dataManager.js"></script>
     <script src="./index.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css">
@@ -26,44 +28,23 @@
                 <a href="https://wasabihu.github.io/" class="logo">Wasabi</a>
                 <nav class="main-nav">
                     <ul>
-                        <li><a href="https://www.google.com/ncr" target="_blank">Google</a></li>
+                        <li><a href="https://www.google.com/ncr" target="_blank" rel="noreferrer">Google</a></li>
                     </ul>
                 </nav>
             </div>
         </header>
 
         <main id="content">
-           <div id="main-action-buttons" style="margin-bottom: var(--spacing-md);"> 
-    <button id="showAddCategoryFormButton" class="btn btn-primary">新增分類</button> 
-    <button id="showAddLinkFormButton" class="btn btn-primary">新增連結</button>
-    <button id="exportDataButton" class="btn btn-primary">匯出資料 (JS)</button>
-    <button id="clearStorageButton" class="btn btn-danger">清除本地存储</button>
-</div>
-
-            <div id="tabsEx1" class="tabs">
-                <ul>
-                    <li><a href="#fragment-1">常用</a></li>
-                    <li><a href="#fragment-2">工具</a></li>
-                    <li><a href="#fragment-3">其他</a></li>
-                </ul>
-                <div id="fragment-1" class="tab-panel">
-                    </div>
-                <div id="fragment-2" class="tab-panel">
-                    </div>
-                <div id="fragment-3" class="tab-panel">
-                    </div>
+            <div id="main-action-buttons" style="margin-bottom: var(--spacing-md);">
+                <button id="showAddCategoryFormButton" class="btn btn-primary">新增分类</button>
+                <button id="showAddLinkFormButton" class="btn btn-primary">新增链接</button>
+                <button id="exportDataButton" class="btn btn-primary">导出数据 (JS)</button>
+                <button id="clearStorageButton" class="btn btn-danger">清除本地存储</button>
             </div>
 
-            <div id="tabsEx2" class="tabs" style="margin-top: var(--spacing-lg);">
-                <ul>
-                    <li><a href="#fragment-4">收藏</a></li>
-                    <li><a href="#fragment-6">其他2</a></li>
-                </ul>
-                <div id="fragment-4" class="tab-panel">
-                    </div>
-                <div id="fragment-6" class="tab-panel">
-                    </div>
-            </div>
+            <div id="tabsEx1" class="tabs"></div>
+            <div id="tabsEx2" class="tabs" style="margin-top: var(--spacing-lg);"></div>
+
             <div id="linkContent" class="modal">
                 <form id="editLinkForm" class="modal-form">
                     <input type="hidden" id="link_id" name="link_id" value="">
@@ -74,14 +55,14 @@
                             <option value="">-- 请选择一个链接 --</option>
                         </select>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="item_select">所属分类：</label>
-                        <select id="item_select" name="item_select"> 
+                        <select id="item_select" name="item_select">
                             <option value="0">------------------</option>
                             <option value="add" class="thickbox">新增分类</option>
                         </select>
-                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="name">名称：</label>
                         <input type="text" id="name" name="name" value="">
@@ -91,7 +72,7 @@
                         <input type="url" id="href" name="href" value="">
                     </div>
                     <div class="form-group">
-                        <label for="description">描述 (备注)：</label>
+                        <label for="description">描述（备注）：</label>
                         <input type="text" id="description" name="description" value="">
                     </div>
                     <div class="form-group">
@@ -99,8 +80,7 @@
                         <input type="number" id="seq" name="seq" value="" min="1">
                     </div>
                     <div class="form-actions">
-                        <input id="deleteCurrentLinkButtonInForm" type="button" value="删除此链接" class="btn btn-danger" style="float: left;"> 
-                        
+                        <input id="deleteCurrentLinkButtonInForm" type="button" value="删除当前链接" class="btn btn-danger" style="float: left;">
                         <input id="edit_link_but" type="button" value="提交" class="btn btn-primary">
                         <input id="cancelLinkModalButton" type="button" value="取消" class="btn btn-secondary">
                     </div>
@@ -115,7 +95,7 @@
                         <input type="text" id="it_title" name="it_title" value="">
                     </div>
                     <div class="form-group">
-                        <label for="it_page">Page (所属Tab ID)：</label>
+                        <label for="it_page">Page（所属 Tab ID）：</label>
                         <input type="text" id="it_page" name="it_page" value="" placeholder="例如: fragment-1">
                     </div>
                     <div class="form-group">
@@ -123,8 +103,7 @@
                         <input type="number" id="it_seq" name="it_seq" value="" min="1">
                     </div>
                     <div class="form-actions">
-                        <input id="delete_category_but" type="button" value="删除分类" class="btn btn-danger" style="float: left; background-color: #d32f2f; color: white; border-color: #b71c1c;"> 
-                        
+                        <input id="delete_category_but" type="button" value="删除分类" class="btn btn-danger" style="float: left; background-color: #d32f2f; color: white; border-color: #b71c1c;">
                         <input id="edit_item_but" type="button" value="提交" class="btn btn-primary">
                         <input id="cancelCategoryModalButton" type="button" value="取消" class="btn btn-secondary">
                     </div>
@@ -133,8 +112,8 @@
         </main>
 
         <footer class="footer">
-            <p>&copy; 2025 My Bookmarks</p> </footer>
+            <p>&copy; 2025 My Bookmarks</p>
+        </footer>
     </div>
-
-    </body>
+</body>
 </html>
