@@ -1,5 +1,6 @@
 ﻿var categories = [];
 var links = {};
+var searchQuery = '';
 let notyf;
 
 function getTabGroups() {
@@ -11,16 +12,76 @@ function getAllTabIds() {
 }
 
 function getDefaultTabId() {
-    const firstTabId = getAllTabIds()[0];
-    return firstTabId || 'fragment-1';
+    return getAllTabIds()[0] || 'fragment-1';
 }
 
 function getActiveTabId() {
     const activePanel = $('.tabs .ui-tabs-panel').filter(function() {
         return $(this).css('display') !== 'none';
     }).first();
-
     return activePanel.length ? activePanel.attr('id') : getDefaultTabId();
+}
+
+function getCategoryById(categoryId) {
+    return categories.find(category => category && category.id === String(categoryId)) || null;
+}
+
+function getFirstCategoryIdInTab(tabId) {
+    const match = categories.find(category => category && category.page === tabId);
+    return match ? match.id : null;
+}
+
+function ensureCategoryLinkGroup(categoryId) {
+    const key = String(categoryId);
+    if (!Array.isArray(links[key])) {
+        links[key] = [];
+    }
+    return links[key];
+}
+
+function getLinksForCategory(categoryId) {
+    return ensureCategoryLinkGroup(categoryId);
+}
+
+function setLinksForCategory(categoryId, nextLinks) {
+    links[String(categoryId)] = Array.isArray(nextLinks) ? nextLinks : [];
+}
+
+function findLinkRecordById(linkId) {
+    const normalizedLinkId = String(linkId);
+    for (const category of categories) {
+        const categoryLinks = getLinksForCategory(category.id);
+        const link = categoryLinks.find(item => item && item.id === normalizedLinkId);
+        if (link) {
+            return { categoryId: category.id, category, link };
+        }
+    }
+    return null;
+}
+
+function getNextCategorySeq() {
+    if (!categories.length) {
+        return 1;
+    }
+
+    const validSeqs = categories.map(category => parseInt(category.seq, 10)).filter(seq => !Number.isNaN(seq));
+    return validSeqs.length > 0 ? Math.max(...validSeqs) + 1 : 1;
+}
+
+function getNextLinkSeq(categoryId, currentLinkId) {
+    const categoryLinks = getLinksForCategory(categoryId);
+    const linksForSeq = currentLinkId
+        ? categoryLinks.filter(link => link.id !== String(currentLinkId))
+        : categoryLinks;
+    const sequences = linksForSeq.map(link => parseInt(link.seq, 10)).filter(seq => !Number.isNaN(seq));
+    return sequences.length > 0 ? Math.max(...sequences) + 1 : 1;
+}
+
+function saveCurrentData() {
+    const normalizedData = normalizeBookmarkData(categories, links);
+    categories = normalizedData.categories;
+    links = normalizedData.links;
+    saveDataToLocalStorage_DM(categories, links, notyf);
 }
 
 function renderTabsFromConfig() {
@@ -53,121 +114,6 @@ function initializeTabs() {
     });
 }
 
-$(document).ready(function() {
-    notyf = new Notyf({
-        duration: 3000,
-        position: { x: 'right', y: 'top' },
-        types: [
-            { type: 'success', backgroundColor: 'var(--primary-color)', icon: false, className: 'notyf-success-custom' },
-            { type: 'error', backgroundColor: '#d32f2f', duration: 5000, icon: false, className: 'notyf-error-custom' },
-            { type: 'warning', backgroundColor: 'var(--accent-color)', icon: false, className: 'notyf-warning-custom' },
-            { type: 'info', backgroundColor: '#2979ff', icon: false, className: 'notyf-info-custom' }
-        ],
-        dismissible: true
-    });
-
-    renderTabsFromConfig();
-
-    $('#clearStorageButton').click(function() {
-        if (confirm('确定要清除所有本地存储的数据吗？此操作不可撤销！')) {
-            localStorage.clear();
-            notyf.success('本地存储已清除');
-            location.reload();
-        }
-    });
-
-    const loadedDataResult = loadDataFromLocalStorage_DM();
-    if (loadedDataResult.success && loadedDataResult.categories && loadedDataResult.links) {
-        const normalizedStoredData = normalizeBookmarkData(loadedDataResult.categories, loadedDataResult.links);
-        categories = normalizedStoredData.categories;
-        links = normalizedStoredData.links;
-    } else {
-        const normalizedDefaultData = normalizeBookmarkData(initialCategories, initialLinks);
-        categories = normalizedDefaultData.categories;
-        links = normalizedDefaultData.links;
-        if (categories.length > 0 || Object.keys(links).length > 0) {
-            saveCurrentData();
-        }
-    }
-
-    if (Array.isArray(categories)) {
-        categories.sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
-    }
-
-    try {
-        initializeTabs();
-    } catch (error) {
-        console.error('Error initializing tabs:', error);
-        notyf.error('Tabs 初始化失败！');
-    }
-
-    populateCategorySelect();
-    generateLinks();
-    bindEventHandlers();
-
-    $('#item_select').on('change', function() {
-        if (!$(this).prop('disabled') && $(this).val() === 'add') {
-            $('#item_id').val('');
-            $('#it_title').val('');
-            $('#it_page').val(getActiveTabId());
-            $('#it_seq').val(getNextCategorySeq());
-            $('#delete_category_but').hide();
-            showModal('editItemDiv');
-            $(this).val('0');
-        }
-    });
-
-    $('#showAddLinkFormButton').on('click', function() {
-        cleanLinkForm();
-        $('#item_select').prop('disabled', false);
-        $('#select_link_to_edit').val('').parent().hide();
-        $('#deleteCurrentLinkButtonInForm').hide();
-
-        if (!Array.isArray(categories) || categories.length === 0) {
-            notyf.error('请先至少创建一个分类，才能新增链接！');
-            return;
-        }
-
-        const activeTabId = getActiveTabId();
-        let preSelectedCategoryId = '0';
-        const firstCategoryInActiveTab = categories.find(category => category && category.page === activeTabId);
-        if (firstCategoryInActiveTab?.id) {
-            preSelectedCategoryId = firstCategoryInActiveTab.id;
-        } else if (categories[0]?.id) {
-            preSelectedCategoryId = categories[0].id;
-        }
-
-        $('#item_select').val(preSelectedCategoryId);
-        settingLastSeq(preSelectedCategoryId);
-        showModal('linkContent');
-    });
-
-    $('#showAddCategoryFormButton').on('click', function() {
-        $('#item_id').val('');
-        $('#it_title').val('');
-        $('#it_page').val(getActiveTabId());
-        $('#it_seq').val(getNextCategorySeq());
-        $('#delete_category_but').hide();
-        showModal('editItemDiv');
-    });
-});
-
-function getNextCategorySeq() {
-    if (!Array.isArray(categories) || categories.length === 0) {
-        return 1;
-    }
-
-    const validSeqs = categories.map(category => parseInt(category.seq, 10)).filter(seq => !Number.isNaN(seq));
-    return validSeqs.length > 0 ? Math.max(...validSeqs) + 1 : 1;
-}
-
-function saveCurrentData() {
-    const normalizedData = normalizeBookmarkData(categories, links);
-    categories = normalizedData.categories;
-    links = normalizedData.links;
-    saveDataToLocalStorage_DM(categories, links, notyf);
-}
-
 function populateCategorySelect() {
     const select = $('#item_select');
     if (!select.length) {
@@ -176,25 +122,61 @@ function populateCategorySelect() {
 
     const currentValue = select.val();
     const isDisabled = select.prop('disabled');
-
     select.empty().append($('<option>', { value: '0', text: '------------------' }));
 
-    const sortedCategories = [...categories].sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
-    sortedCategories.forEach(category => {
-        if (category?.id && category?.name) {
-            select.append($('<option>', { value: category.id, text: category.name }));
-        }
-    });
+    [...categories]
+        .sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0))
+        .forEach(category => {
+            if (category?.id && category?.name) {
+                select.append($('<option>', { value: category.id, text: category.name }));
+            }
+        });
 
     select.append($('<option>', { value: 'add', text: '新增分类' }).addClass('thickbox'));
-
     if (currentValue && currentValue !== 'add') {
         select.val(currentValue);
     }
     select.prop('disabled', isDisabled);
 }
 
+function filterLinksForSearch(category, categoryLinks) {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) {
+        return categoryLinks;
+    }
+
+    if ((category.name || '').toLowerCase().includes(query)) {
+        return categoryLinks;
+    }
+
+    return categoryLinks.filter(link => {
+        const fields = [link.text, link.title, link.href]
+            .filter(value => typeof value === 'string')
+            .map(value => value.toLowerCase());
+        return fields.some(value => value.includes(query));
+    });
+}
+
+function createLinkElement(category, linkData) {
+    const linkText = typeof linkData.text === 'string' && linkData.text.trim() !== '' ? linkData.text.trim() : '?????';
+    const elementId = linkData.id || ('link-' + generateUniqueId());
+    const linkAnchor = $('<a>')
+        .attr({
+            href: linkData.href || '#',
+            title: linkData.title || linkText,
+            id: elementId,
+            target: '_blank'
+        })
+        .addClass('link')
+        .text(linkText);
+
+    return $('<div>')
+        .addClass('link-card')
+        .append(linkAnchor);
+}
+
 function generateLinks() {
+
     const fragments = {};
     getAllTabIds().forEach(tabId => {
         const panel = $('#' + tabId);
@@ -202,78 +184,150 @@ function generateLinks() {
         fragments[tabId] = panel;
     });
 
-    const sortedCategories = [...categories].sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
-    sortedCategories.forEach(category => {
-        if (!category?.name || !category?.id) {
-            return;
-        }
-
-        const categoryContainer = $('<div>').addClass('category-container').attr('data-category', category.name);
-        const categoryTitle = $('<h3>').addClass('category-title').text(category.name);
-        const linksContainer = $('<div>').addClass('links-container');
-        categoryContainer.append(categoryTitle);
-
-        if (Array.isArray(links[category.name])) {
-            const sortedLinks = [...links[category.name]].sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
-            sortedLinks.forEach(linkData => {
-                if (linkData && typeof linkData.href !== 'undefined' && linkData.text !== null) {
-                    linksContainer.append(createLinkElement(linkData));
-                }
-            });
-        }
-
-        categoryContainer.append(linksContainer);
-        const targetTabId = fragments[category.page] ? category.page : getDefaultTabId();
-        fragments[targetTabId].append(categoryContainer);
-    });
-}
-
-function handleEditLinksInContainerDblClick() {
-    const categoryContainer = $(this).closest('.category-container');
-    if (!categoryContainer.length) {
-        notyf.error('无法找到当前链接列表所属的分类。');
-        return;
-    }
-
-    const categoryName = categoryContainer.data('category');
-    const category = categories.find(item => item && item.name === categoryName);
-    if (!category) {
-        notyf.error(`找不到分类“${categoryName}”的数据。`);
-        return;
-    }
-
-    cleanLinkFormForContainerEdit();
-    $('#item_select').val(category.id).prop('disabled', false);
-    $('#select_link_to_edit').val('').parent().show();
-
-    const selectLinkToEdit = $('#select_link_to_edit');
-    selectLinkToEdit.empty().append($('<option>', { value: '', text: '-- 请选择一个链接 --' }));
-
-    const categoryLinks = links[categoryName] || [];
-    if (categoryLinks.length > 0) {
-        const sortedLinks = [...categoryLinks].sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
-        sortedLinks.forEach(link => {
-            if (link?.id && link?.text) {
-                selectLinkToEdit.append($('<option>', { value: link.id, text: link.text }));
+    [...categories]
+        .sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0))
+        .forEach(category => {
+            if (!category?.id || !category?.name) {
+                return;
             }
-        });
-        selectLinkToEdit.prop('disabled', false);
-    } else {
-        selectLinkToEdit.append($('<option>', { value: '', text: '当前分类下暂无可编辑链接' })).prop('disabled', true);
-    }
 
-    showModal('linkContent');
+            const categoryLinks = [...getLinksForCategory(category.id)]
+                .sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
+            const filteredLinks = filterLinksForSearch(category, categoryLinks);
+            if (searchQuery.trim() && filteredLinks.length === 0) {
+                return;
+            }
+
+            const categoryContainer = $('<div>')
+                .addClass('category-container')
+                .attr('data-category-id', category.id)
+                .attr('data-category', category.name);
+            const categoryHeader = $('<div>').addClass('category-header');
+            const categoryTitle = $('<h3>').addClass('category-title').text(category.name);
+            const linksContainer = $('<div>').addClass('links-container');
+
+            categoryHeader.append(categoryTitle);
+            filteredLinks.forEach(linkData => {
+                linksContainer.append(createLinkElement(category, linkData));
+            });
+
+            categoryContainer.append(categoryHeader).append(linksContainer);
+            const targetTabId = fragments[category.page] ? category.page : getDefaultTabId();
+            fragments[targetTabId].append(categoryContainer);
+        });
 }
 
-function cleanLinkFormForContainerEdit() {
+function fillLinkPicker(categoryId) {
+    const selectLinkToEdit = $('#select_link_to_edit');
+    const category = getCategoryById(categoryId);
+    if (!category) {
+        return;
+    }
+
+    selectLinkToEdit.empty().append($('<option>', { value: '', text: '-- 请选择一个链接 --' }));
+    const sortedLinks = [...getLinksForCategory(category.id)].sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
+    if (sortedLinks.length === 0) {
+        selectLinkToEdit.append($('<option>', { value: '', text: '当前分类下暂无可编辑链接' }));
+        selectLinkToEdit.prop('disabled', true);
+        return;
+    }
+
+    sortedLinks.forEach(link => {
+        selectLinkToEdit.append($('<option>', { value: link.id, text: link.text }));
+    });
+    selectLinkToEdit.prop('disabled', false);
+}
+
+function cleanLinkForm() {
     $('#link_id').val('');
     $('#name').val('');
     $('#href').val('');
     $('#description').val('');
     $('#seq').val('');
-    $('#item_select').prop('disabled', true);
-    $('#select_link_to_edit').empty().append($('<option>', { value: '', text: '-- 请选择一个链接 --' })).prop('disabled', false);
+    $('#item_select').val('0').prop('disabled', false);
+    $('#select_link_to_edit').val('').prop('disabled', false).parent().hide();
     $('#deleteCurrentLinkButtonInForm').hide();
+}
+
+function openEditCategoryModal(categoryId) {
+    if (!categoryId) {
+        $('#item_id').val('');
+        $('#it_title').val('');
+        $('#it_page').val(getActiveTabId());
+        $('#it_seq').val(getNextCategorySeq());
+        $('#delete_category_but').hide();
+        showModal('editItemDiv');
+        return;
+    }
+
+    const category = getCategoryById(categoryId);
+    if (!category) {
+        notyf.error('找不到要编辑的分类。');
+        return;
+    }
+
+    $('#item_id').val(category.id);
+    $('#it_title').val(category.name);
+    $('#it_seq').val(category.seq || '');
+    $('#it_page').val(category.page || getDefaultTabId());
+    $('#delete_category_but').show();
+    showModal('editItemDiv');
+}
+
+function openEditLinkModal(options = {}) {
+    const { categoryId, linkId, showPicker = false } = options;
+    cleanLinkForm();
+    $('#item_select').prop('disabled', false);
+
+    if (!categories.length) {
+        notyf.error('请先至少创建一个分类，才能新增链接！');
+        return;
+    }
+
+    const activeTabCategoryId = getFirstCategoryIdInTab(getActiveTabId());
+    const fallbackCategoryId = categoryId || activeTabCategoryId || categories[0]?.id;
+    if (fallbackCategoryId) {
+        $('#item_select').val(String(fallbackCategoryId));
+    }
+
+    if (showPicker && fallbackCategoryId) {
+        fillLinkPicker(fallbackCategoryId);
+        $('#select_link_to_edit').val('').parent().show();
+    }
+
+    if (linkId) {
+        const record = findLinkRecordById(linkId);
+        if (!record) {
+            notyf.error('未找到要编辑的链接。');
+            return;
+        }
+
+        $('#item_select').val(record.categoryId);
+        $('#link_id').val(record.link.id);
+        $('#name').val(record.link.text || '');
+        $('#href').val(record.link.href || '');
+        $('#description').val(record.link.title || '');
+        $('#seq').val(record.link.seq || '1');
+        $('#deleteCurrentLinkButtonInForm').show();
+
+        if (showPicker) {
+            fillLinkPicker(record.categoryId);
+            $('#select_link_to_edit').val(record.link.id).parent().show();
+        }
+    } else {
+        settingLastSeq($('#item_select').val());
+    }
+
+    showModal('linkContent');
+}
+
+function handleEditLinksInContainerDblClick() {
+    const categoryId = $(this).closest('.category-container').data('category-id');
+    if (!categoryId) {
+        notyf.error('无法找到当前链接列表所属的分类。');
+        return;
+    }
+    openEditLinkModal({ categoryId: String(categoryId), showPicker: true });
 }
 
 function bindEventHandlers() {
@@ -285,11 +339,18 @@ function bindEventHandlers() {
     });
     $('#cancelLinkModalButton').off('click').on('click', function() {
         hideModal('linkContent');
-        $('#item_select').prop('disabled', false);
-        $('#select_link_to_edit').parent().hide();
     });
     $('#cancelCategoryModalButton').off('click').on('click', function() {
         hideModal('editItemDiv');
+    });
+    $('#clearSearchButton').off('click').on('click', function() {
+        searchQuery = '';
+        $('#searchInput').val('');
+        generateLinks();
+    });
+    $('#searchInput').off('input').on('input', function() {
+        searchQuery = normalizeText($(this).val()) || '';
+        generateLinks();
     });
     $('#deleteCurrentLinkButtonInForm').off('click').on('click', function(event) {
         event.preventDefault();
@@ -324,20 +385,33 @@ function bindEventHandlers() {
     }).hide();
 
     $('#content').off('dblclick.editLinksInContainer').on('dblclick.editLinksInContainer', '.links-container', handleEditLinksInContainerDblClick);
-    $('#content').off('dblclick.editCategory').on('dblclick.editCategory', '.category-container .category-title', editCategoryForm);
+    $('#content').off('dblclick.editCategory').on('dblclick.editCategory', '.category-title', function() {
+        openEditCategoryModal($(this).closest('.category-container').data('category-id'));
+    });
 
-    $('#select_link_to_edit').off('change').on('change', function() {
-        const selectedLinkId = $(this).val();
-        const categoryId = $('#item_select').val();
-        const category = categories.find(item => item && item.id === categoryId);
-        if (!category) {
-            notyf.error('所属分类信息丢失。');
+    $('#item_select').off('change.linkEditor').on('change.linkEditor', function() {
+        if (!$(this).prop('disabled') && $(this).val() === 'add') {
+            openEditCategoryModal();
+            $(this).val('0');
             return;
         }
 
-        const categoryLinks = links[category.name] || [];
-        const linkData = categoryLinks.find(link => link.id === selectedLinkId);
-        if (!linkData) {
+        if ($('#select_link_to_edit').parent().is(':visible')) {
+            fillLinkPicker($(this).val());
+            $('#link_id').val('');
+            $('#name').val('');
+            $('#href').val('');
+            $('#description').val('');
+            $('#seq').val('');
+            $('#deleteCurrentLinkButtonInForm').hide();
+        } else {
+            settingLastSeq($(this).val());
+        }
+    });
+
+    $('#select_link_to_edit').off('change').on('change', function() {
+        const selectedLinkId = $(this).val();
+        if (!selectedLinkId) {
             $('#link_id').val('');
             $('#name').val('');
             $('#href').val('');
@@ -347,11 +421,18 @@ function bindEventHandlers() {
             return;
         }
 
-        $('#link_id').val(linkData.id);
-        $('#name').val(linkData.text || '');
-        $('#href').val(linkData.href || '');
-        $('#description').val(linkData.title || '');
-        $('#seq').val(linkData.seq || '1');
+        const record = findLinkRecordById(selectedLinkId);
+        if (!record) {
+            notyf.error('未找到要编辑的链接。');
+            return;
+        }
+
+        $('#item_select').val(record.categoryId);
+        $('#link_id').val(record.link.id);
+        $('#name').val(record.link.text || '');
+        $('#href').val(record.link.href || '');
+        $('#description').val(record.link.title || '');
+        $('#seq').val(record.link.seq || '1');
         $('#deleteCurrentLinkButtonInForm').show();
     });
 }
@@ -378,122 +459,74 @@ function editLink(event) {
         return;
     }
 
-    const categoryObj = categories.find(category => category && category.id === selectedCategoryId);
-    if (!categoryObj) {
+    const category = getCategoryById(selectedCategoryId);
+    if (!category) {
         notyf.error('选择的分类数据无效！');
         return;
     }
 
-    const selectedCategoryName = categoryObj.name;
-    const existingLinks = Array.isArray(links[selectedCategoryName]) ? links[selectedCategoryName] : [];
-    const linksForSeqCalc = linkId ? existingLinks.filter(link => link.id !== linkId) : [...existingLinks];
-
     let finalLinkSeq = 1;
     if (linkSeqInput && !Number.isNaN(parseInt(linkSeqInput, 10))) {
         finalLinkSeq = parseInt(linkSeqInput, 10);
-    } else if (linksForSeqCalc.length > 0) {
-        const sequences = linksForSeqCalc.map(link => parseInt(link.seq, 10)).filter(seq => !Number.isNaN(seq));
-        if (sequences.length > 0) {
-            finalLinkSeq = Math.max(...sequences) + 1;
-        }
+    } else {
+        finalLinkSeq = getNextLinkSeq(category.id, linkId || null);
     }
 
-    const isEditingFlow = $('#select_link_to_edit').parent().is(':visible');
-
-    if (!linkId && !isEditingFlow) {
-        const newLink = {
+    if (!linkId) {
+        const nextLinks = [...getLinksForCategory(category.id), {
             id: 'link-' + generateUniqueId(),
             href: linkHref,
             title: linkDescription,
             text: linkName,
             seq: String(finalLinkSeq)
-        };
-        if (!Array.isArray(links[selectedCategoryName])) {
-            links[selectedCategoryName] = [];
-        }
-        links[selectedCategoryName].push(newLink);
+        }];
+        setLinksForCategory(category.id, nextLinks);
         notyf.success(`链接“${linkName}”新增成功！`);
-        hideModal('linkContent');
-        $('#item_select').prop('disabled', false);
-    } else if (linkId) {
-        let oldCategoryName = null;
-        let linkToUpdate = null;
-
-        for (const [categoryName, categoryLinks] of Object.entries(links)) {
-            if (!Array.isArray(categoryLinks)) {
-                continue;
-            }
-            linkToUpdate = categoryLinks.find(link => link && link.id === linkId);
-            if (linkToUpdate) {
-                oldCategoryName = categoryName;
-                break;
-            }
-        }
-
-        if (!linkToUpdate) {
+    } else {
+        const record = findLinkRecordById(linkId);
+        if (!record) {
             notyf.error('未找到要更新的链接，请重新选择。');
-            $('#select_link_to_edit').val('').trigger('change');
             return;
         }
 
-        if (oldCategoryName && oldCategoryName !== selectedCategoryName) {
-            links[oldCategoryName] = links[oldCategoryName].filter(link => link.id !== linkId);
-            if (!Array.isArray(links[selectedCategoryName])) {
-                links[selectedCategoryName] = [];
-            }
-            links[selectedCategoryName].push(linkToUpdate);
-        }
+        const updatedLink = {
+            ...record.link,
+            href: linkHref,
+            title: linkDescription,
+            text: linkName,
+            seq: String(finalLinkSeq)
+        };
 
-        linkToUpdate.href = linkHref;
-        linkToUpdate.title = linkDescription;
-        linkToUpdate.text = linkName;
-        linkToUpdate.seq = String(finalLinkSeq);
-
+        const sourceLinks = getLinksForCategory(record.categoryId).filter(link => link.id !== record.link.id);
+        setLinksForCategory(record.categoryId, sourceLinks);
+        const targetLinks = [...getLinksForCategory(category.id), updatedLink];
+        setLinksForCategory(category.id, targetLinks);
         notyf.success(`链接“${linkName}”更新成功！`);
-        $('#select_link_to_edit option[value="' + linkId + '"]').text(linkName);
-        hideModal('linkContent');
-        $('#item_select').prop('disabled', false);
-    } else {
-        notyf.error('当前操作状态不明确，请重试。');
-        return;
     }
 
     saveCurrentData();
     generateLinks();
+    hideModal('linkContent');
 }
 
 function deleteLink() {
     const linkIdToDelete = $('#link_id').val();
-    const categoryId = $('#item_select').val();
     if (!linkIdToDelete) {
         notyf.error('请先选择一个要删除的链接。');
         return;
     }
 
-    const category = categories.find(item => item && item.id === categoryId);
-    if (!category) {
-        notyf.error('无法确定链接所属的分类。');
-        return;
-    }
-
-    const categoryLinks = links[category.name];
-    if (!Array.isArray(categoryLinks)) {
+    const record = findLinkRecordById(linkIdToDelete);
+    if (!record) {
         notyf.error('在数据中未找到要删除的链接。');
         return;
     }
 
-    const linkIndex = categoryLinks.findIndex(link => link && link.id === linkIdToDelete);
-    if (linkIndex === -1) {
-        notyf.error('在数据中未找到要删除的链接。');
-        return;
-    }
-
-    categoryLinks.splice(linkIndex, 1);
+    setLinksForCategory(record.categoryId, getLinksForCategory(record.categoryId).filter(link => link.id !== linkIdToDelete));
     saveCurrentData();
     generateLinks();
     hideModal('linkContent');
-    $('#item_select').prop('disabled', false);
-    cleanLinkFormForContainerEdit();
+    cleanLinkForm();
     notyf.success('链接已成功删除！');
 }
 
@@ -528,7 +561,7 @@ function editCategory(event) {
         finalSeq = getNextCategorySeq();
     }
 
-    if (categoryId === '') {
+    if (!categoryId) {
         const newCategory = {
             id: generateNewCategoryId(),
             name: categoryTitle,
@@ -536,26 +569,19 @@ function editCategory(event) {
             page: categoryPage
         };
         categories.push(newCategory);
-        if (!links[newCategory.name]) {
-            links[newCategory.name] = [];
-        }
+        ensureCategoryLinkGroup(newCategory.id);
         $('#delete_category_but').hide();
     } else {
-        const categoryIndex = categories.findIndex(category => category && category.id === categoryId);
-        if (categoryIndex === -1) {
+        const targetCategory = getCategoryById(categoryId);
+        if (!targetCategory) {
             notyf.error('未找到要更新的分类。');
             return;
         }
 
-        const oldCategoryName = categories[categoryIndex].name;
-        categories[categoryIndex].name = categoryTitle;
-        categories[categoryIndex].seq = finalSeq;
-        categories[categoryIndex].page = categoryPage;
-
-        if (oldCategoryName !== categoryTitle) {
-            links[categoryTitle] = links[oldCategoryName] || [];
-            delete links[oldCategoryName];
-        }
+        targetCategory.name = categoryTitle;
+        targetCategory.seq = finalSeq;
+        targetCategory.page = categoryPage;
+        ensureCategoryLinkGroup(targetCategory.id);
         $('#delete_category_but').show();
     }
 
@@ -575,28 +601,25 @@ function deleteCategory() {
         return;
     }
 
-    const categoryIndex = categories.findIndex(category => category && category.id === categoryIdToDelete);
-    if (categoryIndex === -1) {
+    const category = getCategoryById(categoryIdToDelete);
+    if (!category) {
         notyf.error('在数据中未找到要删除的分类。');
         return;
     }
 
-    const categoryToDelete = categories[categoryIndex];
-    const categoryName = categoryToDelete.name;
-
     const confirmAction = () => {
-        categories.splice(categoryIndex, 1);
-        delete links[categoryName];
+        categories = categories.filter(item => item.id !== category.id);
+        delete links[category.id];
         saveCurrentData();
         populateCategorySelect();
         generateLinks();
         hideModal('editItemDiv');
-        notyf.success(`分类“${categoryName}”已成功删除！`);
+        notyf.success(`分类“${category.name}”已成功删除！`);
     };
 
     if (typeof Swal !== 'undefined') {
         Swal.fire({
-            title: `确定删除分类“${categoryName}”吗？`,
+            title: `确定删除分类“${category.name}”吗？`,
             text: '注意：这将同时删除该分类下的所有链接，此操作无法撤销！',
             icon: 'warning',
             showCancelButton: true,
@@ -614,65 +637,17 @@ function deleteCategory() {
         return;
     }
 
-    if (confirm(`您确定要删除分类“${categoryName}”吗？\n这将同时删除该分类下的所有链接！`)) {
+    if (confirm(`您确定要删除分类“${category.name}”吗？\n这将同时删除该分类下的所有链接！`)) {
         confirmAction();
     }
 }
 
-function generateUniqueId() {
-    return Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
-}
-
-function generateNewCategoryId() {
-    let maxId = 0;
-    categories.forEach(category => {
-        const rawId = String(category.id || '');
-        const numericPart = rawId.startsWith('cat-') ? rawId.substring(4) : rawId;
-        const numericId = parseInt(numericPart, 10);
-        if (!Number.isNaN(numericId) && numericId > maxId) {
-            maxId = numericId;
-        }
-    });
-    return String(maxId + 1);
-}
-
-function createLinkElement(linkData) {
-    const linkText = typeof linkData.text === 'string' && linkData.text.trim() !== '' ? linkData.text.trim() : '未命名链接';
-    const elementId = linkData.id || ('link-' + generateUniqueId());
-    return $('<a>')
-        .attr({
-            href: linkData.href || '#',
-            title: linkData.title || linkText,
-            id: elementId,
-            target: '_blank'
-        })
-        .addClass('link')
-        .text(linkText);
-}
-
-function cleanLinkForm() {
-    $('#link_id').val('');
-    $('#name').val('');
-    $('#href').val('');
-    $('#description').val('');
-    $('#seq').val('');
-    $('#item_select').val('0').prop('disabled', false);
-    $('#select_link_to_edit').val('').parent().hide();
-    $('#deleteCurrentLinkButtonInForm').hide();
-}
-
-function settingLastSeq(selectedCategoryId) {
-    let seq = 1;
-    if (selectedCategoryId && selectedCategoryId !== '0' && selectedCategoryId !== 'add') {
-        const category = categories.find(item => item && item.id === selectedCategoryId);
-        if (category && Array.isArray(links[category.name]) && links[category.name].length > 0) {
-            const sequences = links[category.name].map(link => parseInt(link.seq, 10)).filter(value => !Number.isNaN(value));
-            if (sequences.length > 0) {
-                seq = Math.max(...sequences) + 1;
-            }
-        }
+function settingLastSeq(categoryId) {
+    if (!categoryId || categoryId === '0' || categoryId === 'add') {
+        $('#seq').val(1);
+        return;
     }
-    $('#seq').val(seq);
+    $('#seq').val(getNextLinkSeq(String(categoryId), null));
 }
 
 function showModal(modalId) {
@@ -696,20 +671,19 @@ function hideModal(modalId) {
     $(document).off('keydown.modal');
 }
 
-function editCategoryForm() {
-    const categoryName = $(this).closest('.category-container').data('category');
-    const category = categories.find(item => item && item.name === categoryName);
-    if (!category) {
-        notyf.error(`找不到分类“${categoryName}”的详细信息。`);
-        return;
-    }
+function generateUniqueId() {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
+}
 
-    $('#item_id').val(category.id);
-    $('#it_title').val(category.name);
-    $('#it_seq').val(category.seq || '');
-    $('#it_page').val(category.page || getDefaultTabId());
-    $('#delete_category_but').show();
-    showModal('editItemDiv');
+function generateNewCategoryId() {
+    let maxId = 0;
+    categories.forEach(category => {
+        const numericId = parseInt(String(category.id).replace(/^cat-/, ''), 10);
+        if (!Number.isNaN(numericId) && numericId > maxId) {
+            maxId = numericId;
+        }
+    });
+    return String(maxId + 1);
 }
 
 function forceAlignNotyfDismissButton() {
@@ -732,3 +706,64 @@ function forceAlignNotyfDismissButton() {
         });
     }, 100);
 }
+
+$(document).ready(function() {
+    notyf = new Notyf({
+        duration: 3000,
+        position: { x: 'right', y: 'top' },
+        types: [
+            { type: 'success', backgroundColor: 'var(--primary-color)', icon: false, className: 'notyf-success-custom' },
+            { type: 'error', backgroundColor: '#d32f2f', duration: 5000, icon: false, className: 'notyf-error-custom' },
+            { type: 'warning', backgroundColor: 'var(--accent-color)', icon: false, className: 'notyf-warning-custom' },
+            { type: 'info', backgroundColor: '#2979ff', icon: false, className: 'notyf-info-custom' }
+        ],
+        dismissible: true
+    });
+
+    renderTabsFromConfig();
+
+    $('#clearStorageButton').on('click', function() {
+        if (confirm('确定要清除所有本地存储的数据吗？此操作不可撤销！')) {
+            localStorage.clear();
+            notyf.success('本地存储已清除');
+            location.reload();
+        }
+    });
+
+    const loadedDataResult = loadDataFromLocalStorage_DM();
+    if (loadedDataResult.success && loadedDataResult.categories && loadedDataResult.links) {
+        const normalizedStoredData = normalizeBookmarkData(loadedDataResult.categories, loadedDataResult.links);
+        categories = normalizedStoredData.categories;
+        links = normalizedStoredData.links;
+    } else {
+        const normalizedDefaultData = normalizeBookmarkData(initialCategories, initialLinks);
+        categories = normalizedDefaultData.categories;
+        links = normalizedDefaultData.links;
+        if (categories.length > 0 || Object.keys(links).length > 0) {
+            saveCurrentData();
+        }
+    }
+
+    categories.sort((a, b) => (parseInt(a.seq, 10) || 0) - (parseInt(b.seq, 10) || 0));
+
+    try {
+        initializeTabs();
+    } catch (error) {
+        console.error('Error initializing tabs:', error);
+        notyf.error('Tabs 初始化失败！');
+    }
+
+    populateCategorySelect();
+    generateLinks();
+    bindEventHandlers();
+
+    $('#showAddLinkFormButton').on('click', function() {
+        const activeTabId = getActiveTabId();
+        const firstCategoryInActiveTab = getFirstCategoryIdInTab(activeTabId);
+        openEditLinkModal({ categoryId: firstCategoryInActiveTab || categories[0]?.id });
+    });
+
+    $('#showAddCategoryFormButton').on('click', function() {
+        openEditCategoryModal();
+    });
+});

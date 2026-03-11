@@ -46,19 +46,23 @@ for (const category of categories) {
   assert(!categoryIds.has(category.id), `分类 id 重复：${category.id}`);
   assert(!categoryNames.has(category.name), `分类名重复：${category.name}`);
   assert(allowedTabIds.has(category.page), `分类 ${category.name} 使用了未定义的 tab: ${category.page}`);
-  categoryIds.add(category.id);
+  categoryIds.add(String(category.id));
   categoryNames.add(category.name);
 }
 
-for (const [groupName, groupLinks] of Object.entries(links)) {
-  assert(categoryNames.has(groupName), `链接分组 ${groupName} 没有对应的分类。`);
-  assert(Array.isArray(groupLinks), `链接分组 ${groupName} 必须是数组。`);
+for (const [groupKey, groupLinks] of Object.entries(links)) {
+  assert(categoryIds.has(groupKey), `链接分组 ${groupKey} 必须使用分类 id 作为键。`);
+  assert(Array.isArray(groupLinks), `链接分组 ${groupKey} 必须是数组。`);
   for (const link of groupLinks) {
-    assert(link.id, `链接分组 ${groupName} 存在缺少 id 的链接。`);
+    assert(link.id, `链接分组 ${groupKey} 存在缺少 id 的链接。`);
     assert(typeof link.text === 'string' && link.text.trim(), `链接 ${link.id} 缺少 text。`);
     assert(typeof link.href === 'string' && /^https?:\/\//.test(link.href), `链接 ${link.id} 的 href 非法：${link.href}`);
     assert(!Number.isNaN(Number.parseInt(String(link.seq), 10)), `链接 ${link.id} 的 seq 非法。`);
   }
+}
+
+for (const categoryId of categoryIds) {
+  assert(Array.isArray(links[categoryId]), `分类 ${categoryId} 必须在 initialLinks 中有对应数组。`);
 }
 
 console.log(`数据校验通过：${categories.length} 个分类，${Object.keys(links).length} 个链接分组，${allowedTabIds.size} 个 tab。`);
