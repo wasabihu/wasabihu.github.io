@@ -324,10 +324,37 @@ function openEditLinkModal(options = {}) {
 function handleEditLinksInContainerDblClick() {
     const categoryId = $(this).closest('.category-container').data('category-id');
     if (!categoryId) {
-        notyf.error('无法找到当前链接列表所属的分类。');
+        notyf.error('????????????????');
         return;
     }
     openEditLinkModal({ categoryId: String(categoryId), showPicker: true });
+}
+
+async function syncRemoteData() {
+    const confirmed = confirm('\u786e\u5b9a\u8981\u7528\u8fdc\u7a0b data.js \u8986\u76d6\u5f53\u524d\u672c\u5730\u6570\u636e\u5e76\u5237\u65b0\u9875\u9762\u5417\uff1f');
+    if (!confirmed) {
+        return;
+    }
+
+    const syncButton = $('#syncRemoteDataButton');
+    syncButton.prop('disabled', true).text('\u540c\u6b65\u4e2d...');
+
+    try {
+        const syncedData = await syncRemoteDataToLocalStorage_DM({
+            normalizeBookmarkDataFn: normalizeBookmarkData,
+            notyfInstance: notyf
+        });
+
+        categories = syncedData.categories;
+        links = syncedData.links;
+        searchQuery = '';
+        $('#searchInput').val('');
+        setTimeout(function() {
+            location.reload();
+        }, 300);
+    } finally {
+        syncButton.prop('disabled', false).text('\u540c\u6b65\u8fdc\u7a0b\u6570\u636e');
+    }
 }
 
 function bindEventHandlers() {
@@ -336,6 +363,9 @@ function bindEventHandlers() {
     $('#delete_category_but').off('click').on('click', deleteCategory);
     $('#exportDataButton').off('click').on('click', function() {
         exportDataAsJson_DM(categories, links, notyf);
+    });
+    $('#syncRemoteDataButton').off('click').on('click', function() {
+        syncRemoteData();
     });
     $('#cancelLinkModalButton').off('click').on('click', function() {
         hideModal('linkContent');

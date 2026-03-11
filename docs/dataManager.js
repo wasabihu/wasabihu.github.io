@@ -2,6 +2,7 @@
 
 const CATEGORIES_STORAGE_KEY_DM = 'myBookmarks_categories_v5';
 const LINKS_STORAGE_KEY_DM = 'myBookmarks_links_v5';
+const REMOTE_DATA_URL_DM = 'https://wasabihu.github.io/data.js';
 
 function loadDataFromLocalStorage_DM() {
     try {
@@ -38,6 +39,57 @@ function saveDataToLocalStorage_DM(categoriesToSave, linksToSave, notyfInstance)
         } else {
             alert('无法将更改保存到本地存储。');
         }
+    }
+}
+
+function parseDataJsContent_DM(dataJsContent) {
+    if (typeof dataJsContent !== 'string' || !dataJsContent.trim()) {
+        throw new Error('远程 data.js 内容为空。');
+    }
+
+    const parsed = new Function(`"use strict";\n${dataJsContent}\nreturn { initialCategories, initialLinks };`)();
+    if (!parsed || !Array.isArray(parsed.initialCategories) || typeof parsed.initialLinks !== 'object' || parsed.initialLinks === null) {
+        throw new Error('远程 data.js 内容格式无效。');
+    }
+
+    return parsed;
+}
+
+async function syncRemoteDataToLocalStorage_DM(options = {}) {
+    const {
+        url = REMOTE_DATA_URL_DM,
+        normalizeBookmarkDataFn,
+        notyfInstance
+    } = options;
+
+    if (typeof normalizeBookmarkDataFn !== 'function') {
+        throw new Error('缺少 normalizeBookmarkDataFn，无法同步远程数据。');
+    }
+
+    try {
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const remoteDataJs = await response.text();
+        const parsedData = parseDataJsContent_DM(remoteDataJs);
+        const normalizedData = normalizeBookmarkDataFn(parsedData.initialCategories, parsedData.initialLinks);
+        saveDataToLocalStorage_DM(normalizedData.categories, normalizedData.links, notyfInstance);
+
+        const successMessage = '远程 data.js 已同步到本地。';
+        if (notyfInstance && typeof notyfInstance.success === 'function') {
+            notyfInstance.success(successMessage);
+        }
+
+        return normalizedData;
+    } catch (error) {
+        const message = `同步远程 data.js 失败：${error.message}`;
+        console.error(message, error);
+        if (notyfInstance && typeof notyfInstance.error === 'function') {
+            notyfInstance.error(message);
+        }
+        throw error;
     }
 }
 

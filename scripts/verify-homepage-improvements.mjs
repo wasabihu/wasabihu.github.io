@@ -26,6 +26,7 @@ const dataManagerJs = loadText('docs/dataManager.js');
 assert(html.includes('id="searchInput"'), 'index.html 必须提供搜索输入框 searchInput。');
 assert(html.includes('id="clearSearchButton"'), 'index.html 必须提供清空搜索按钮 clearSearchButton。');
 assert(html.includes('id="select_link_to_edit"'), 'index.html 必须提供链接选择下拉框。');
+assert(html.includes('id="syncRemoteDataButton"'), 'index.html 必须提供远程同步按钮 syncRemoteDataButton。');
 assert(!indexJs.includes('edit-link-button'), '首页不应再渲染 edit-link-button 编辑按钮。');
 assert(!indexJs.includes('edit-category-button'), '首页不应再渲染 edit-category-button 编辑按钮。');
 assert(css.includes('.form-group select'), 'style.css 必须定义表单 select 样式。');
@@ -62,11 +63,17 @@ assert(indexJs.includes('renderTabsFromConfig'), 'index.js 必须通过 renderTa
 assert(indexJs.includes('filterLinksForSearch'), 'index.js 必须提供搜索过滤逻辑。');
 assert(indexJs.includes('openEditLinkModal'), 'index.js 必须保留链接编辑能力。');
 assert(indexJs.includes('openEditCategoryModal'), 'index.js 必须保留分类编辑能力。');
+assert(indexJs.includes('syncRemoteData'), 'index.js 必须提供远程同步逻辑。');
+assert(indexJs.includes("$('#syncRemoteDataButton')"), 'index.js 必须绑定 syncRemoteDataButton。');
+assert(indexJs.includes('location.reload()'), 'index.js 同步成功后必须刷新页面。');
 assert(indexJs.includes('dblclick.editLinksInContainer'), 'index.js 必须保留双击链接区域编辑入口。');
 assert(indexJs.includes('dblclick.editCategory'), 'index.js 必须保留双击分类标题编辑入口。');
 assert(indexJs.includes('getLinksForCategory'), 'index.js 必须通过分类 id 获取链接。');
 assert(indexJs.includes('getFirstCategoryIdInTab'), 'index.js 必须提供 tab 到默认分类的回退逻辑。');
 assert(!indexJs.includes('links[category.name]'), 'index.js 不应继续直接按分类名读取 links。');
+assert(dataManagerJs.includes('REMOTE_DATA_URL_DM'), 'dataManager.js 必须定义远程 data.js 地址。');
+assert(dataManagerJs.includes('parseDataJsContent_DM'), 'dataManager.js 必须提供远程 data.js 解析函数。');
+assert(dataManagerJs.includes('syncRemoteDataToLocalStorage_DM'), 'dataManager.js 必须提供远程同步函数。');
 assert(dataManagerJs.includes('linksFormatted[String(categoryId)]'), 'dataManager.js 导出 links 时必须使用分类 id 作为键。');
 
 console.log('首页增强验证通过。');

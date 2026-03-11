@@ -32,7 +32,7 @@ function createLocalStorage(initialStore = {}, options = {}) {
   };
 }
 
-function createRuntime() {
+function createRuntime(extraContext = {}) {
   const code = fs.readFileSync('docs/dataManager.js', 'utf8');
   const logs = { alert: [], blobParts: [], appendCount: 0, removeCount: 0, clickCount: 0, revoked: [] };
   const anchors = [];
@@ -76,7 +76,7 @@ function createRuntime() {
       }
     },
     URL: {
-      createObjectURL(blob) {
+      createObjectURL() {
         return 'blob:test-url';
       },
       revokeObjectURL(url) {
@@ -91,7 +91,11 @@ function createRuntime() {
         }
         super('2026-03-11T14:22:33Z');
       }
-    }
+    },
+    fetch: async () => {
+      throw new Error('fetch not stubbed');
+    },
+    ...extraContext
   };
 
   vm.createContext(context);
@@ -181,11 +185,74 @@ function testExportSuccess() {
   assert(successes.includes('可读格式的 data.js 数据已开始导出。'), '导出成功时应提示 notyf.success。');
 }
 
+function testParseRemoteDataJs() {
+  const { context } = createRuntime();
+  const parsed = context.parseDataJsContent_DM(
+    `var initialCategories = [{"id":"1","name":"分类","seq":1,"page":"fragment-1"}];\nvar initialLinks = {"1":[{"id":"l1","href":"https://example.com","title":"","text":"链接","seq":"1"}]};`
+  );
+  assert(Array.isArray(parsed.initialCategories) && parsed.initialCategories.length === 1, 'parseDataJsContent_DM 应解析 categories。');
+  assert(Array.isArray(parsed.initialLinks['1']) && parsed.initialLinks['1'].length === 1, 'parseDataJsContent_DM 应解析 links。');
+}
+
+async function testSyncRemoteDataSuccess() {
+  const localStorage = createLocalStorage();
+  const fetchCalls = [];
+  const fetch = async (url, options) => {
+    fetchCalls.push({ url, options });
+    return {
+      ok: true,
+      text: async () => `var initialCategories = [{"id":"1","name":"远程分类","seq":1,"page":"fragment-1"}];\nvar initialLinks = {"1":[{"id":"l1","href":"https://example.com","title":"","text":"远程链接","seq":"1"}]};`
+    };
+  };
+  const { context } = createRuntime({ fetch });
+  context.localStorage = localStorage;
+  const successes = [];
+  const normalizedCalls = [];
+  const normalizeBookmarkDataFn = (categories, links) => {
+    normalizedCalls.push({ categories, links });
+    return { categories, links };
+  };
+
+  const result = await context.syncRemoteDataToLocalStorage_DM({
+    normalizeBookmarkDataFn,
+    notyfInstance: { success(message) { successes.push(message); } }
+  });
+
+  assert(result.categories[0].name === '远程分类', 'syncRemoteDataToLocalStorage_DM 应返回远程分类数据。');
+  assert(JSON.parse(localStorage.store.myBookmarks_categories_v5)[0].name === '远程分类', 'syncRemoteDataToLocalStorage_DM 应覆盖本地 categories。');
+  assert(JSON.parse(localStorage.store.myBookmarks_links_v5)['1'][0].text === '远程链接', 'syncRemoteDataToLocalStorage_DM 应覆盖本地 links。');
+  assert(normalizedCalls.length === 1, 'syncRemoteDataToLocalStorage_DM 应调用数据标准化函数。');
+  assert(successes.includes('远程 data.js 已同步到本地。'), 'syncRemoteDataToLocalStorage_DM 成功时应提示成功。');
+  assert(fetchCalls.length === 1 && fetchCalls[0].options.cache === 'no-store', 'syncRemoteDataToLocalStorage_DM 应以 no-store 拉取远程数据。');
+}
+
+async function testSyncRemoteDataFailureUsesNotyf() {
+  const localStorage = createLocalStorage();
+  const fetch = async () => ({ ok: false, status: 503, text: async () => '' });
+  const { context } = createRuntime({ fetch });
+  context.localStorage = localStorage;
+  const errors = [];
+  let threw = false;
+  try {
+    await context.syncRemoteDataToLocalStorage_DM({
+      normalizeBookmarkDataFn: (categories, links) => ({ categories, links }),
+      notyfInstance: { error(message) { errors.push(message); } }
+    });
+  } catch (error) {
+    threw = true;
+  }
+  assert(threw, 'syncRemoteDataToLocalStorage_DM 远程失败时应抛出错误。');
+  assert(errors.some(message => message.includes('同步远程 data.js 失败')), 'syncRemoteDataToLocalStorage_DM 失败时应提示 notyf.error。');
+}
+
+await testSyncRemoteDataSuccess();
+await testSyncRemoteDataFailureUsesNotyf();
 testLoadSuccess();
 testLoadFailureClearsCorruptedData();
 testSaveSuccess();
 testSaveFailureUsesNotyf();
 testExportFailureUsesNotyf();
 testExportSuccess();
+testParseRemoteDataJs();
 
 console.log('dataManager 运行级测试通过。');
