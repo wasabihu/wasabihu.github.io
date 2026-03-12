@@ -3,6 +3,10 @@ var links = {};
 var searchQuery = '';
 let notyf;
 
+function shouldHideSyncRemoteDataButton() {
+    return window.location.hostname.includes('github.io');
+}
+
 function getTabGroups() {
     return Array.isArray(window.tabGroups) ? window.tabGroups : [];
 }
@@ -364,9 +368,13 @@ function bindEventHandlers() {
     $('#exportDataButton').off('click').on('click', function() {
         exportDataAsJson_DM(categories, links, notyf);
     });
-    $('#syncRemoteDataButton').off('click').on('click', function() {
-        syncRemoteData();
-    });
+    if (!shouldHideSyncRemoteDataButton()) {
+        $('#syncRemoteDataButton').off('click').on('click', function() {
+            syncRemoteData();
+        });
+    } else {
+        $('#syncRemoteDataButton').off('click');
+    }
     $('#cancelLinkModalButton').off('click').on('click', function() {
         hideModal('linkContent');
     });
@@ -751,6 +759,10 @@ $(document).ready(function() {
     });
 
     renderTabsFromConfig();
+
+    if (shouldHideSyncRemoteDataButton()) {
+        $('#syncRemoteDataButton').hide();
+    }
 
     $('#clearStorageButton').on('click', function() {
         if (confirm('确定要清除所有本地存储的数据吗？此操作不可撤销！')) {
