@@ -1,0 +1,4 @@
+interface:
+  display_name: "Find Stock Report"
+  short_description: "Find official annual and interim stock report download links."
+  default_prompt: "Use $find-stock-report to find the last 10 years of annual and interim reports for a listed company and return official download links."
