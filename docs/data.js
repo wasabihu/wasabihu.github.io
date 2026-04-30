@@ -668,6 +668,20 @@ var initialLinks = {
             "title": "",
             "text": "claudeAI",
             "seq": "43"
+        },
+        {
+            "id": "link-mol4l4anybo89mp",
+            "href": "https://outlook.live.com/mail",
+            "title": "",
+            "text": "outlook 邮箱",
+            "seq": "100"
+        },
+        {
+            "id": "link-mol4o9r2yxs8a42",
+            "href": "https://ipcheck.ing",
+            "title": "",
+            "text": "MyIP",
+            "seq": "175"
         }
     ],
     "9": [
@@ -2639,13 +2653,6 @@ var initialLinks = {
             "href": "https://chatgpt.com/g/g-Apzuylaqk-langgpt-ti-shi-ci-zhuan-jia",
             "title": "",
             "text": "提示词专家",
-            "seq": "43"
-        },
-        {
-            "id": "link-mbeg6lhmw5qzcgp",
-            "href": "https://chatgpt.com/g/g-sRQtxpN4C-smartgpt-5",
-            "title": "永不变懒，聪明勤奋的GPT！提前体验 GPT-5 的爽感！",
-            "text": "SmartGPT-5",
             "seq": "43"
         },
         {
