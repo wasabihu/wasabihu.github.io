@@ -15,14 +15,14 @@ function render(){
   const count=Object.values(data.links).flat().length;
   $('summary').textContent=`${data.categories.length} 个分类 · ${count} 个网址`;
   $('tabs').replaceChildren();
-  for(const [id,label] of tabs){const tab=button(label,()=>{active=id;render()});tab.setAttribute('aria-current',String(active===id));$('tabs').append(tab);}
+  for(const [id,label] of tabs){const tab=button(label,()=>{active=id;render();$('tabs').querySelector('[aria-current=true]').focus()});tab.setAttribute('aria-current',String(active===id));$('tabs').append(tab);}
   const query=$('search').value.trim().toLowerCase();
   const container=$('collections');container.replaceChildren();
   for(const category of sorted(data.categories)){
     if(!query && category.page!==active)continue;
     const group=sorted(data.links[category.id]||[]).filter(link=>!query || [category.name,link.text,link.href,link.title].join(' ').toLowerCase().includes(query));
     if(query && !group.length && !category.name.toLowerCase().includes(query))continue;
-    const section=element('section',undefined,'category');const heading=element('div',undefined,'category-head');heading.append(element('h2',category.name));
+    const section=element('section',undefined,'category');const heading=element('div',undefined,'category-head');heading.append(element('h2',category.name));const total=element('span',String(group.length).padStart(2,'0'),'category-count');total.setAttribute('aria-label',`${group.length} 个网址`);heading.append(total);
     if(allowed)heading.append(button(`编辑分类`,()=>openCategory(category)));
     const grid=element('div',undefined,'link-grid');
     for(const link of group){const item=element('div',undefined,'bookmark');const anchor=element('a',link.text);let url;try{url=new URL(link.href)}catch{continue}if(!['http:','https:'].includes(url.protocol))continue;anchor.href=link.href;anchor.target='_blank';anchor.rel='noopener noreferrer';anchor.title=link.title || link.href;anchor.dataset.bookmarkId=link.id;item.append(anchor);if(allowed){const edit=button('编辑',()=>openLink(link,category.id));edit.setAttribute('aria-label',`编辑 ${link.text}`);item.append(edit);}grid.append(item);}
@@ -68,6 +68,7 @@ $('add-link').addEventListener('click',()=>openLink());$('add-category').addEven
 $('export').addEventListener('click',()=>{const href=URL.createObjectURL(new Blob([JSON.stringify(store.document,null,2)],{type:'application/json'}));const anchor=element('a');anchor.href=href;anchor.download=`wasabi-bookmarks-${new Date().toISOString().slice(0,10)}.json`;document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(href),1000);});
 for(const [id,label] of tabs){const option=element('option',label);option.value=id;$('category-page').append(option);}
 window.addEventListener('beforeunload',event=>{if(dirty || store.saving){event.preventDefault();event.returnValue='';}});
+document.addEventListener('keydown',event=>{if(event.key==='/' && !event.ctrlKey && !event.metaKey && !event.altKey && !$('editor').open && !event.target.closest('input,textarea,select,[contenteditable]')){event.preventDefault();$('search').focus();}});
 async function start(){
   if(admin){$('heading').textContent='管理我的收藏';$('manage').textContent='浏览收藏';$('manage').href='/';try{await store.request('/admin/api/session');allowed=true;$('admin-actions').hidden=false;$('logout').hidden=false;}catch(error){status(error.message,true);$('reauth').hidden=false;return;}}
   await reload();
