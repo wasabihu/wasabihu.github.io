@@ -12,3 +12,8 @@
 - Final review: 独立 reviewer 未发现 Critical/Important；发现排序 0 被 || 改写、生产构建缺少测试。排序问题影响已有用户字段，提升为需修复，改用 ??；新增生产白名单与路由构建测试。
 - Ruling: 本地原生 confirm 阻塞浏览器自动化，删除改为页面内明确“保留/确认删除”二次确认，便于手机操作与可验证性；不绕过用户确认。
 - Verification: 19 项自动测试通过；真实 Pages 本地运行 /admin/ 与 /admin/api/session 无身份返回 403。生产发布与 owner 登录验收待完成。
+
+- Deployment: commit 361ec3e 已推送 main，Cloudflare 部署 bdd18fc2-c74b-4450-b86c-d0e219f5cd9e success，正式域名读取 version=1 / 38 分类 / 341 链接。
+- Live security: nav.tidyuse.com /admin/ 与 /admin/api/session 匿名 302 转 Access；pages.dev /admin/ 和 PUT /admin/api/bookmarks 匿名 403；pages.dev 首页 noindex；/data.js 返回 404。
+- Browser: 本地真实 D1 完成网址新增、编辑、刷新、删除与分类新增/删除；分类排序 0 重新编辑仍为 0；390px scrollWidth=clientWidth。正式首页云端读取成功。
+- Pending: 已给指定邮箱发送一次登录验证码并请用户在浏览器完成；未读取或索取验证码。线上 owner 增删尚未验证，不能宣称全部验收完成。
