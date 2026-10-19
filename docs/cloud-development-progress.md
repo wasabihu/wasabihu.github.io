@@ -17,3 +17,5 @@
 - Live security: nav.tidyuse.com /admin/ 与 /admin/api/session 匿名 302 转 Access；pages.dev /admin/ 和 PUT /admin/api/bookmarks 匿名 403；pages.dev 首页 noindex；/data.js 返回 404。
 - Browser: 本地真实 D1 完成网址新增、编辑、刷新、删除与分类新增/删除；分类排序 0 重新编辑仍为 0；390px scrollWidth=clientWidth。正式首页云端读取成功。
 - Pending: 已给指定邮箱发送一次登录验证码并请用户在浏览器完成；未读取或索取验证码。线上 owner 增删尚未验证，不能宣称全部验收完成。
+
+- Task 4: complete，2026-10-19 18:26 CST 用户完成正式 OTP 登录后，浏览器真实新增测试网址、刷新、编辑、删除全部收到成功回执；无登录的独立 HTTP 读取也确认更新。D1 version 从 1 到 4，最终 38 分类 / 341 网址，逐字段深比较确认原有 categories 与 links 完全未变。证据见 docs/evidence/nav-live-acceptance.json 与 nav-admin-live-verified.png。此前 Pending 已解除。
