@@ -12,6 +12,7 @@ test('生产构建仅含动态站资源及受保护函数路由',async()=>{
  assert.deepEqual(routes.include,['/api/*','/admin','/admin/*']);
  assert.deepEqual(routes.exclude,[]);
  const html=await readFile(join(output,'index.html'),'utf8');
- assert.match(html,/src="\/app.mjs"/);assert.doesNotMatch(html,/data\.js|data_export/);
+ assert.match(html,/src="\/app\.mjs\?v=[a-zA-Z0-9-]+"/);
+ assert.match(html,/href="\/cloud\.css\?v=[a-zA-Z0-9-]+"/);assert.doesNotMatch(html,/data\.js|data_export/);
  assert.match(await readFile(join(output,'_headers'),'utf8'),/Content-Security-Policy/);
 });
