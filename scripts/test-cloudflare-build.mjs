@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import {mkdtemp,readFile,readdir} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {spawnSync} from 'node:child_process';
+import vm from 'node:vm';
+const output=await mkdtemp(join(tmpdir(),'nav-build-test-'));
+const before=await readFile('docs/data.js','utf8');
+const run=spawnSync(process.execPath,['scripts/build-cloudflare.mjs'],{env:{...process.env,BUILD_OUTPUT:output},encoding:'utf8'});
+assert.equal(run.status,0,'Cloudflare static build should succeed');
+const published=await readFile(join(output,'data.js'),'utf8');
+const source={};vm.runInNewContext(before,source,{timeout:1000});
+const target={};vm.runInNewContext(published,target,{timeout:1000});
+const original=Object.values(source.initialLinks).flat();
+const links=Object.values(target.initialLinks).flat();
+assert.equal(links.length,original.length);
+assert.equal(target.initialCategories.length,source.initialCategories.length);
+for(const link of links){
+ const old=original.find(x=>String(x.id)===String(link.id));
+ assert.equal(link.href,old.href);assert.equal(link.text,old.text);
+ if(['10','109158','108699','108984','109152'].includes(String(link.id)))assert.equal(link.title,'');
+ else assert.equal(link.title,old.title);
+}
+const files=await readdir(output);
+assert(!files.some(f=>f.includes('export')||f==='.DS_Store'||f==='index_files'));
+const dm=await readFile(join(output,'dataManager.js'),'utf8');
+assert(!dm.includes('https://wasabihu.github.io/data.js'),'sync must not reload sensitive old source');
+const html=await readFile(join(output,'index.html'),'utf8');
+assert(html.includes('https://nav.tidyuse.com/'));
+assert(!html.includes('href="https://wasabihu.github.io/"'));
+assert.equal(await readFile('docs/data.js','utf8'),before,'original GitHub Pages data stays unchanged');
+console.log('PASS: 38 categories, 341 links, sensitive notes removed, original preserved, no backup exports, same-origin sync.');
