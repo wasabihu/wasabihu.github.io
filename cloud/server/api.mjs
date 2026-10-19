@@ -37,9 +37,10 @@ export async function handleApi(request, env, resolver) {
       return json(await writeDocument(env,body.version,body));
     }
     if (['/admin','/admin/'].includes(url.pathname) && request.method === 'GET') {
-      const asset = await env.ASSETS.fetch(new Request(new URL('/index.html',url)));
+      const asset = await env.ASSETS.fetch(new Request(new URL('/',url)));
       const response = new Response(asset.body,asset);
       for (const [key,value] of Object.entries(responseHeaders)) response.headers.set(key,value);
+      response.headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
       response.headers.set('X-Robots-Tag','noindex, nofollow');
       return response;
     }

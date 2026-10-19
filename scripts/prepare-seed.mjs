@@ -1,0 +1,18 @@
+import {mkdtemp,readFile,writeFile,mkdir} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {spawnSync} from 'node:child_process';
+import {validateDocument} from '../cloud/server/core.mjs';
+const output=await mkdtemp(join(tmpdir(),'nav-sanitized-seed-'));
+const result=spawnSync(process.execPath,['scripts/build-static.mjs'],{env:{...process.env,BUILD_OUTPUT:output},encoding:'utf8'});
+if(result.status!==0)throw new Error('初始数据清理失败。');
+const source=await readFile(join(output,'data.js'),'utf8');
+const parts=source.match(/^var initialCategories = ([\s\S]*?);\s*var initialLinks = ([\s\S]*);\s*$/);
+if(!parts)throw new Error('初始数据格式不符。');
+const data=validateDocument({categories:JSON.parse(parts[1]),links:JSON.parse(parts[2])});
+const body=JSON.stringify(data);
+await mkdir('.wrangler',{recursive:true});
+await writeFile('.wrangler/seed.json',JSON.stringify(data,null,2));
+const quote=s=>`'${s.replaceAll("'","''")}'`;
+await writeFile('.wrangler/seed.sql',`INSERT OR IGNORE INTO bookmark_document (id, version, body, updated_at) VALUES (1, 1, ${quote(body)}, ${quote(new Date().toISOString())});`);
+console.log(JSON.stringify({categories:data.categories.length,links:Object.values(data.links).flat().length,bytes:new TextEncoder().encode(body).length,output:'.wrangler/seed.sql'}));

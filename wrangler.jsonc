@@ -1,0 +1,8 @@
+{
+  "name": "tidyuse-nav",
+  "pages_build_output_dir": "./cloudflare-dist",
+  "compatibility_date": "2026-10-19",
+  "d1_databases": [{"binding":"DB","database_name":"tidyuse-nav-data","database_id":"77019f49-6c28-426c-b6d7-158fedcfb5db"}],
+  "vars": {"ADMIN_EMAIL":"wasabi.net@gmail.com","ACCESS_TEAM_DOMAIN":"https://wasabigz.cloudflareaccess.com","ACCESS_AUD":"127432b930d6d498abcfe1d96724ef27cb47dd296133ce633215fdc8ab6d73cd"},
+  "env": {"preview":{"d1_databases":[],"vars":{}}}
+}

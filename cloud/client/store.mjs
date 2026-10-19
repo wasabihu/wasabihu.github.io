@@ -1,6 +1,6 @@
 /** 云端保存状态；仅成功回执可以替换已保存版本。 */
 export class CloudStore {
-  constructor(transport = fetch) { this.transport=transport; this.document=null; this.saving=false; }
+  constructor(transport = (...args) => fetch(...args)) { this.transport=transport; this.document=null; this.saving=false; }
   async request(path, options={}) {
     let response;
     try { response=await this.transport(path,{cache:'no-store',credentials:'same-origin',redirect:'error',signal:AbortSignal.timeout(20000),...options}); }

@@ -6,7 +6,7 @@ import {spawnSync} from 'node:child_process';
 import vm from 'node:vm';
 const output=await mkdtemp(join(tmpdir(),'nav-build-test-'));
 const before=await readFile('docs/data.js','utf8');
-const run=spawnSync(process.execPath,['scripts/build-cloudflare.mjs'],{env:{...process.env,BUILD_OUTPUT:output},encoding:'utf8'});
+const run=spawnSync(process.execPath,['scripts/build-static.mjs'],{env:{...process.env,BUILD_OUTPUT:output},encoding:'utf8'});
 assert.equal(run.status,0,'Cloudflare static build should succeed');
 const published=await readFile(join(output,'data.js'),'utf8');
 const source={};vm.runInNewContext(before,source,{timeout:1000});

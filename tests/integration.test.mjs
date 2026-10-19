@@ -23,3 +23,13 @@ test('匿名写入、跨站写入、别名无身份写入均拒绝',async()=>{fo
 test('保存、并发版本冲突、重读持久化',async()=>{const changed=structuredClone(sample);changed.links['1'].push({id:'new',href:'https://example.com',text:'新收藏',title:'',seq:'1'});const response=await api.handleApi(request('/admin/api/bookmarks','PUT',{version:1,...changed},{auth:true}),env,resolver);assert.equal(response.status,200);assert.equal((await response.json()).version,2);const conflict=await api.handleApi(request('/admin/api/bookmarks','PUT',{version:1,...sample},{auth:true}),env,resolver);assert.equal(conflict.status,409);const saved=await (await api.handleApi(request(),env,resolver)).json();assert.equal(saved.links['1'][0].text,'新收藏');assert.equal(saved.version,2);});
 test('非 JSON、错误版本和非法链接不写入数据库',async()=>{const invalid=structuredClone(sample);invalid.links['1']=[{id:'bad',href:'javascript:alert(1)',text:'bad',title:'',seq:'1'}];for(const body of [{version:0,...sample},{version:2,...invalid}])assert.equal((await api.handleApi(request('/admin/api/bookmarks','PUT',body,{auth:true}),env,resolver)).status,400);assert.equal((await env.DB.prepare('SELECT version FROM bookmark_document').first()).version,2);});
 test('无配置时禁止管理并隐藏内部异常',async()=>{assert.equal((await api.handleApi(request('/admin/api/session','GET',null,{auth:true}),{DB:env.DB},resolver)).status,403);const failure=await api.handleApi(request(),{},resolver);assert.equal(failure.status,503);assert.equal((await failure.json()).error.includes('stack'),false);});
+test('错误内容类型、损坏 JSON 和超大请求拒绝',async()=>{
+ for(const [body,type,status] of [['{}','text/plain',415],['{','application/json',400],[' '.repeat(500001),'application/json',413]]) {
+ const req=new Request('https://nav.tidyuse.com/admin/api/bookmarks',{method:'PUT',headers:{'content-type':type,origin:'https://nav.tidyuse.com','cf-access-jwt-assertion':token},body});
+ assert.equal((await api.handleApi(req,env,resolver)).status,status);
+ }
+});
+test('管理页面使用无重定向首页资源且禁止缓存和索引',async()=>{
+ const response=await api.handleApi(request('/admin/','GET',null,{auth:true}),{...env,ASSETS:{fetch:async req=>{assert.equal(new URL(req.url).pathname,'/');return new Response('<h1>管理</h1>',{headers:{'content-type':'text/html'}})}}},resolver);
+ assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');assert.match(response.headers.get('x-robots-tag'),/noindex/);assert.match(response.headers.get('content-security-policy'),/frame-ancestors 'none'/);
+});
