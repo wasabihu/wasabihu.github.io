@@ -1,0 +1,18 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {generateKeyPair, exportJWK, SignJWT, createLocalJWKSet} from 'jose';
+const server = await import('../cloud/server/core.mjs').catch(() => ({}));
+const sample = () => ({categories:[{id:'1',name:'工具',seq:1,page:'fragment-1'}],links:{'1':[{id:'a',text:'示例',href:'https://example.com/',title:'备注',seq:'1'}]}});
+const config = {ACCESS_TEAM_DOMAIN:'https://test.cloudflareaccess.com',ACCESS_AUD:'nav-test',ADMIN_EMAIL:'wasabi.net@gmail.com'};
+const {privateKey,publicKey} = await generateKeyPair('RS256');
+const jwk = {...await exportJWK(publicKey),kid:'test-key',alg:'RS256'};
+const keyset = createLocalJWKSet({keys:[jwk]});
+const token = (payload={}, options={}) => new SignJWT({email:'wasabi.net@gmail.com',...payload}).setProtectedHeader({alg:'RS256',kid:'test-key'}).setIssuer(options.issuer || config.ACCESS_TEAM_DOMAIN).setAudience(options.audience || config.ACCESS_AUD).setIssuedAt().setExpirationTime(options.exp || '10m').sign(privateKey);
+test('合法收藏保留中文、顺序和 ID',()=>{assert.equal(typeof server.validateDocument,'function','数据校验功能尚未实现');assert.deepEqual(server.validateDocument(sample()),sample());});
+test('危险网址和凭据 URL 拒绝写入',()=>{for(const href of ['javascript:alert(1)','data:text/html,test','ftp://example.com','https://u:p@example.com']){const data=sample();data.links['1'][0].href=href;assert.throws(()=>server.validateDocument(data),{status:400});}});
+test('重复链接 ID、孤立分类、非法分页和超大字段拒绝',()=>{const data=sample();data.links['1'].push({...data.links['1'][0]});assert.throws(()=>server.validateDocument(data),{status:400});const orphan=sample();orphan.links.missing=[];assert.throws(()=>server.validateDocument(orphan),{status:400});const page=sample();page.categories[0].page='other';assert.throws(()=>server.validateDocument(page),{status:400});const big=sample();big.links['1'][0].title='a'.repeat(2001);assert.throws(()=>server.validateDocument(big),{status:400});});
+test('非法原型键不进入收藏文档',()=>{const data=sample();data.categories[0].id='__proto__';assert.throws(()=>server.validateDocument(data),{status:400});});
+test('合法 Access 令牌授权指定站主',async()=>{assert.equal(await server.verifyAccessToken(await token(),config,keyset),'wasabi.net@gmail.com');});
+test('错误邮箱、受众、颁发者、过期和伪造令牌拒绝',async()=>{for(const value of [await token({email:'other@example.com'}),await token({}, {audience:'another-app'}),await token({}, {issuer:'https://evil.example'}),await token({}, {exp:1}),'invalid.jwt.token'])await assert.rejects(()=>server.verifyAccessToken(value,config,keyset),{status:403});});
+test('缺少验证配置或令牌时拒绝访问',async()=>{await assert.rejects(()=>server.verifyAccessToken('',config,keyset),{status:403});await assert.rejects(()=>server.verifyAccessToken(awaitToken,{},keyset),{status:403});});
+const awaitToken=await token();
