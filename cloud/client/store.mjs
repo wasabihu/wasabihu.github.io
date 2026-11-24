@@ -41,3 +41,166 @@ export function editDocument(current,kind,action,input) {
   }
   return data;
 }
+/** 计算指定分类下新增链接的推荐末尾排序号。 */
+export function nextLinkOrder(current, categoryId) {
+  const list = current?.links?.[categoryId] || [];
+  let max = 0;
+  for (const item of list) {
+    const value = Number(item?.seq);
+    if (Number.isFinite(value) && value > max) max = value;
+  }
+  return String(max + 1);
+}
+/** 计算指定标签页下新增分类的推荐末尾排序号。 */
+export function nextCategoryOrder(current, page) {
+  const list = (current?.categories || []).filter(category => category.page === page);
+  let max = 0;
+  for (const item of list) {
+    const value = Number(item?.seq);
+    if (Number.isFinite(value) && value > max) max = value;
+  }
+  return max + 1;
+}
+/** 解析一键收藏传入的 URL 参数，仅允许 http/https 链接。 */
+export function parseQuickAddParams(search) {
+  const params = new URLSearchParams(search || '');
+  const rawUrl = (params.get('add_url') || params.get('url') || '').trim();
+  if (!rawUrl) return null;
+  let parsed;
+  try { parsed = new URL(rawUrl); } catch { return null; }
+  if (!['http:', 'https:'].includes(parsed.protocol)) return null;
+  const rawTitle = (params.get('add_title') || params.get('title') || '').trim();
+  return {
+    url: parsed.href.slice(0, 2048),
+    title: rawTitle.slice(0, 200)
+  };
+}
+/** 生成拖到浏览器书签栏即可使用的一键收藏 Bookmarklet 脚本链接。 */
+export function buildBookmarkletHref(origin) {
+  let normalizedOrigin = 'https://nav.tidyuse.com';
+  try {
+    const parsed = new URL(origin);
+    if (['http:', 'https:'].includes(parsed.protocol)) normalizedOrigin = parsed.origin;
+  } catch {}
+  return `javascript:(()=>{window.open(${JSON.stringify(normalizedOrigin + '/admin/?add_url=')}+encodeURIComponent(location.href)+'&add_title='+encodeURIComponent(document.title),'_blank','noopener')})()`;
+}
+/** 检查当前收藏中是否已存在相同网址，便于新增时提醒去重。 */
+export function findExistingLinkByUrl(current, rawUrl) {
+  const target = (rawUrl || '').trim();
+  if (!target || !current?.categories || !current?.links) return null;
+  const categoryNames = new Map(current.categories.map(category => [category.id, category.name]));
+  for (const [categoryId, list] of Object.entries(current.links)) {
+    for (const link of list || []) {
+      if (link?.href === target) {
+        return { link, categoryId, categoryName: categoryNames.get(categoryId) || '' };
+      }
+    }
+  }
+  return null;
+}
+/** 记录本机单条链接点击频次与最近点击时间（自动限制条数防止膨胀）。 */
+export function recordLinkClick(usageMap, linkId, now = Date.now(), maxEntries = 200) {
+  const id = String(linkId || '').trim();
+  if (!id) return usageMap && typeof usageMap === 'object' ? { ...usageMap } : {};
+  const next = {};
+  if (usageMap && typeof usageMap === 'object') {
+    for (const [key, entry] of Object.entries(usageMap)) {
+      if (entry && typeof entry === 'object' && Number.isFinite(Number(entry.count)) && Number(entry.count) > 0) {
+        next[key] = { count: Number(entry.count), lastUsed: Number(entry.lastUsed) || 0 };
+      }
+    }
+  }
+  const previous = next[id] || { count: 0, lastUsed: 0 };
+  next[id] = { count: previous.count + 1, lastUsed: now };
+  const entries = Object.entries(next);
+  if (entries.length > maxEntries) {
+    entries.sort((a, b) => b[1].count - a[1].count || b[1].lastUsed - a[1].lastUsed);
+    return Object.fromEntries(entries.slice(0, maxEntries));
+  }
+  return next;
+}
+/** 根据本机点击统计筛选出仍存在的「最近常点」有效链接。 */
+export function selectFrequentLinks(current, usageMap, limit = 8) {
+  if (!current?.categories || !current?.links || !usageMap || typeof usageMap !== 'object') return [];
+  const lookup = new Map();
+  const categoryNames = new Map(current.categories.map(category => [category.id, category.name]));
+  for (const [categoryId, list] of Object.entries(current.links)) {
+    for (const link of list || []) {
+      if (!link?.id || !link?.href) continue;
+      let parsed;
+      try { parsed = new URL(link.href); } catch { continue; }
+      if (!['http:', 'https:'].includes(parsed.protocol)) continue;
+      lookup.set(link.id, { ...link, categoryId, categoryName: categoryNames.get(categoryId) || '' });
+    }
+  }
+  const ranked = [];
+  for (const [id, stat] of Object.entries(usageMap)) {
+    const record = lookup.get(id);
+    const count = Number(stat?.count);
+    if (!record || !Number.isFinite(count) || count <= 0) continue;
+    ranked.push({ ...record, count, lastUsed: Number(stat?.lastUsed) || 0 });
+  }
+  ranked.sort((a, b) => b.count - a.count || b.lastUsed - a.lastUsed);
+  return ranked.slice(0, limit);
+}
+/** 规范化主机名，便于把同站网址归到同一分类。 */
+function hostnameOf(rawUrl) {
+  try {
+    const parsed = new URL(rawUrl);
+    if (!['http:', 'https:'].includes(parsed.protocol)) return '';
+    return parsed.hostname.toLowerCase().replace(/^www\./, '');
+  } catch { return ''; }
+}
+/** 根据已有收藏中同域名的分布，为新网址推荐最可能的所属分类。 */
+export function suggestCategoryIdForUrl(current, rawUrl) {
+  const host = hostnameOf(rawUrl);
+  if (!host || !current?.categories || !current?.links) return null;
+  const parts = host.split('.');
+  const rootDomain = parts.length >= 2 ? parts.slice(-2).join('.') : host;
+  const scores = new Map();
+  for (const category of current.categories) {
+    let score = 0;
+    for (const link of current.links[category.id] || []) {
+      const linkHost = hostnameOf(link?.href);
+      if (!linkHost) continue;
+      if (linkHost === host) score += 3;
+      else if (rootDomain.length > 3 && (linkHost === rootDomain || linkHost.endsWith('.' + rootDomain))) score += 1;
+    }
+    if (score > 0) scores.set(category.id, score);
+  }
+  if (!scores.size) return null;
+  let bestId = null, bestScore = -1;
+  for (const [categoryId, score] of scores.entries()) {
+    if (score > bestScore) { bestId = categoryId; bestScore = score; }
+  }
+  const matched = current.categories.find(c => c.id === bestId);
+  return matched ? { categoryId: matched.id, categoryName: matched.name, score: bestScore } : null;
+}
+/** 组装弹窗顶部的一键快捷分类胶囊（推荐 > 最近使用 > 当前页高频分类）。 */
+export function buildQuickCategoryChoices(current, options = {}) {
+  const { suggestedId = '', recentIds = [], activePage = 'fragment-1', limit = 5 } = options;
+  if (!current?.categories?.length) return [];
+  const byId = new Map(current.categories.map(c => [c.id, c]));
+  const picked = [];
+  const seen = new Set();
+  const push = (id, tag = '') => {
+    if (!id || seen.has(id) || !byId.has(id) || picked.length >= limit) return;
+    seen.add(id);
+    const cat = byId.get(id);
+    picked.push({ id: cat.id, name: cat.name, tag });
+  };
+  if (suggestedId) push(suggestedId, '推荐');
+  for (const id of recentIds) push(id, '最近');
+  const activePageCats = current.categories
+    .filter(c => c.page === activePage)
+    .sort((a, b) => (current.links?.[b.id]?.length || 0) - (current.links?.[a.id]?.length || 0) || Number(a.seq) - Number(b.seq));
+  for (const cat of activePageCats) push(cat.id, '');
+  for (const cat of current.categories) push(cat.id, '');
+  return picked;
+}
+/** 按关键词筛选分类列表。 */
+export function filterCategoriesByQuery(categories, query) {
+  const needle = (query || '').trim().toLowerCase();
+  if (!needle) return [...(categories || [])];
+  return (categories || []).filter(c => String(c?.name || '').toLowerCase().includes(needle));
+}
