@@ -1,5 +1,8 @@
 import {
   CloudStore,
+  DEFAULT_TABS,
+  resolveTabs,
+  editTabLabels,
   editDocument,
   nextLinkOrder,
   nextCategoryOrder,
@@ -13,17 +16,17 @@ import {
   filterCategoriesByQuery
 } from './store.mjs';
 const $=id=>document.getElementById(id);
-const tabs=[['fragment-1','常用'],['fragment-2','工具'],['fragment-3','其他'],['fragment-4','收藏'],['fragment-6','其他 2']];
 const FREQUENT_KEY='wasabi_nav_frequent_v1';
 const FREQUENT_COLLAPSED_KEY='wasabi_nav_frequent_collapsed_v1';
 const RECENT_CATS_KEY='wasabi_nav_recent_cats_v1';
 const store=new CloudStore();
 const admin=/^\/admin\/?$/.test(location.pathname);
-let allowed=false,active='fragment-1',kind='link',editingExisting=false,dirty=false,loading=false,orderTouched=false,categoryTouched=false,quickAddHandled=false,currentSuggestion=null;
+let allowed=false,active='fragment-1',kind='link',editingExisting=false,dirty=false,tabsDirty=false,loading=false,orderTouched=false,categoryTouched=false,quickAddHandled=false,currentSuggestion=null;
 let usageMap=loadUsageMap();
 let frequentCollapsed=loadFrequentCollapsed();
 let recentCategoryIds=loadRecentCategoryIds();
 const sorted=list=>[...list].sort((a,b)=>Number(a.seq)-Number(b.seq));
+const currentTabs=()=>resolveTabs(store.document);
 function loadUsageMap(){
   try{const raw=localStorage.getItem(FREQUENT_KEY);const parsed=raw?JSON.parse(raw):{};return parsed&&typeof parsed==='object'?parsed:{};}
   catch{return {};}
@@ -108,14 +111,15 @@ function populateCategories(selected,filterText=''){
     select.value='';
     return;
   }
-  const tabLabels=new Map(tabs);
+  const activeTabs=currentTabs();
+  const tabLabels=new Map(activeTabs);
   const grouped=new Map();
   for(const category of matched){
     const page=category.page || 'fragment-1';
     if(!grouped.has(page))grouped.set(page,[]);
     grouped.get(page).push(category);
   }
-  const orderedPages=[...tabs.map(([id])=>id),...[...grouped.keys()].filter(p=>!tabLabels.has(p))];
+  const orderedPages=[...activeTabs.map(([id])=>id),...[...grouped.keys()].filter(p=>!tabLabels.has(p))];
   for(const page of orderedPages){
     const list=grouped.get(page);
     if(!list?.length)continue;
@@ -189,12 +193,38 @@ function renderFrequent(){
     list.append(anchor);
   }
 }
+function populateCategoryPages(selected){
+  const select=$('category-page');
+  if(!select)return;
+  const previous=selected || select.value;
+  select.replaceChildren();
+  for(const [id,label] of currentTabs()){
+    const option=element('option',label);
+    option.value=id;
+    select.append(option);
+  }
+  if(previous)select.value=previous;
+}
 function render(){
   const data=store.document;if(!data)return;
   const count=Object.values(data.links).flat().length;
   $('summary').textContent=`${data.categories.length} 个分类 · ${count} 个网址`;
+  populateCategoryPages();
   $('tabs').replaceChildren();
-  for(const [id,label] of tabs){const tab=button(label,()=>{active=id;render();$('tabs').querySelector('[aria-current=true]').focus()});tab.setAttribute('aria-current',String(active===id));$('tabs').append(tab);}
+  for(const [id,label] of currentTabs()){
+    const tab=button(label,()=>{active=id;render();$('tabs').querySelector('[aria-current=true]').focus()});
+    tab.setAttribute('aria-current',String(active===id));
+    if(allowed){
+      tab.title='双击可重命名此标签页';
+      tab.addEventListener('dblclick',()=>openTabsEditor(id));
+    }
+    $('tabs').append(tab);
+  }
+  if(allowed){
+    const renameBtn=button('✎ 改标签名',()=>openTabsEditor(active),'tab-rename-btn');
+    renameBtn.setAttribute('aria-label','编辑标签页名称');
+    $('tabs').append(renameBtn);
+  }
   const query=$('search').value.trim().toLowerCase();
   renderFrequent();
   const container=$('collections');container.replaceChildren();
@@ -264,12 +294,81 @@ function openLink(link,categoryId,prefill=null){
 function openCategory(category){
   if(!configureEditor('category',!!category))return;
   const chosenPage=category?.page || active;
+  populateCategoryPages(chosenPage);
   $('record-id').value=category?.id || `category-${crypto.randomUUID()}`;
   $('category-name').value=category?.name || '';
   $('category-page').value=chosenPage;
   $('record-order').value=category?.seq ?? String(nextCategoryOrder(store.document,chosenPage));
   updateOrderSummary();
   $('editor').showModal();
+}
+function setTabsBusy(busy){
+  for(const control of $('tabs-form').querySelectorAll('button,input'))control.disabled=busy;
+  $('save-tabs').textContent=busy?'正在保存…':'保存到云端';
+  $('reload').disabled=busy;
+}
+function openTabsEditor(focusTabId=active){
+  if(!allowed || !store.document || store.saving || loading)return;
+  tabsDirty=false;
+  $('tabs-error').textContent='';
+  $('tabs-recovery').hidden=true;
+  const fields=$('tabs-fields');
+  fields.replaceChildren();
+  const activeTabs=currentTabs();
+  const defaultMap=new Map(DEFAULT_TABS);
+  const counts=new Map();
+  for(const c of store.document.categories)counts.set(c.page,(counts.get(c.page)||0)+1);
+  let targetInput=null;
+  activeTabs.forEach(([id,label],index)=>{
+    const fallback=defaultMap.get(id) || id;
+    const catCount=counts.get(id) || 0;
+    const inputId=`tab-label-${id}`;
+    const lbl=element('label',`标签 ${index+1}（默认：${fallback} · ${catCount} 个分类）`);
+    lbl.htmlFor=inputId;
+    const input=document.createElement('input');
+    input.id=inputId;
+    input.name=id;
+    input.type='text';
+    input.maxLength=24;
+    input.required=true;
+    input.value=label;
+    input.placeholder=fallback;
+    fields.append(lbl,input);
+    if(id===focusTabId)targetInput=input;
+  });
+  $('tabs-dialog').showModal();
+  if(targetInput){targetInput.focus();targetInput.select();}
+}
+function closeTabsEditor(){
+  if(store.saving)return;
+  if(tabsDirty && !confirm('放弃尚未保存的标签名修改？'))return;
+  tabsDirty=false;
+  $('tabs-dialog').close();
+}
+async function saveTabs(){
+  if(store.saving || loading)return;
+  if(!$('tabs-form').reportValidity())return;
+  const nextLabels={};
+  for(const [id] of DEFAULT_TABS){
+    const input=$(`tab-label-${id}`);
+    if(input)nextLabels[id]=input.value.trim();
+  }
+  setTabsBusy(true);
+  $('tabs-error').textContent='';
+  try{
+    await store.save(editTabLabels(store.document,nextLabels));
+    tabsDirty=false;
+    $('tabs-dialog').close();
+    render();
+    status('标签页名称已保存到云端，其他设备重新加载即可看到。');
+  }catch(error){
+    $('tabs-error').textContent=error.message;
+    $('tabs-recovery').hidden=false;
+    $('reauth').hidden=false;
+    status('尚未确认保存成功，标签名输入已保留。',true);
+  }finally{
+    setTabsBusy(false);
+  }
 }
 function formInput(){const id=$('record-id').value;return kind==='link'?{id,categoryId:$('link-category').value,text:$('link-name').value.trim(),href:$('link-url').value.trim(),title:$('link-note').value.trim(),seq:String(Number($('record-order').value))}:{id,name:$('category-name').value.trim(),page:$('category-page').value,seq:Number($('record-order').value)};}
 async function save(action){
@@ -285,11 +384,11 @@ async function save(action){
   catch(error){$('form-error').textContent=error.message;$('form-recovery').hidden=false;$('reauth').hidden=false;status('尚未确认保存成功，输入已保留。',true);}
   finally{setBusy(false);}
 }
-async function reload(keepForm=false){
-  if(loading || store.saving)return;loading=true;$('reload').disabled=true;$('reload-editor').disabled=true;
-  try{await store.load();render();if(keepForm){populateCategories($('link-category').value,$('category-filter')?.value || '');updateDuplicateAndSuggestion();$('form-error').textContent='已读取最新收藏，表单输入已保留，请核对后保存。';}status('已读取云端最新收藏。');}
-  catch(error){status(error.message,true);if(keepForm)$('form-error').textContent=error.message;}
-  finally{loading=false;$('reload').disabled=false;$('reload-editor').disabled=false;}
+async function reload(keepForm=false,keepTabs=false){
+  if(loading || store.saving)return;loading=true;$('reload').disabled=true;$('reload-editor').disabled=true;if($('reload-tabs'))$('reload-tabs').disabled=true;
+  try{await store.load();render();if(keepForm){populateCategories($('link-category').value,$('category-filter')?.value || '');updateDuplicateAndSuggestion();$('form-error').textContent='已读取最新收藏，表单输入已保留，请核对后保存。';}if(keepTabs){$('tabs-error').textContent='已读取最新收藏，标签名输入已保留，请核对后保存。';}status('已读取云端最新收藏。');}
+  catch(error){status(error.message,true);if(keepForm)$('form-error').textContent=error.message;if(keepTabs)$('tabs-error').textContent=error.message;}
+  finally{loading=false;$('reload').disabled=false;$('reload-editor').disabled=false;if($('reload-tabs'))$('reload-tabs').disabled=false;}
 }
 function closeEditor(){if(store.saving)return;if(dirty && !confirm('放弃尚未保存的输入？'))return;dirty=false;$('editor').close();}
 function openBookmarkletDialog(){
@@ -335,9 +434,19 @@ $('copy-bookmarklet').addEventListener('click',async()=>{
 $('toggle-frequent').addEventListener('click',()=>{saveFrequentCollapsed(!frequentCollapsed);renderFrequent();});
 $('clear-frequent').addEventListener('click',()=>{saveUsageMap({});renderFrequent();status('已清空本机最近常点记录。');});
 $('export').addEventListener('click',()=>{const href=URL.createObjectURL(new Blob([JSON.stringify(store.document,null,2)],{type:'application/json'}));const anchor=element('a');anchor.href=href;anchor.download=`wasabi-bookmarks-${new Date().toISOString().slice(0,10)}.json`;document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(href),1000);});
-for(const [id,label] of tabs){const option=element('option',label);option.value=id;$('category-page').append(option);}
-window.addEventListener('beforeunload',event=>{if(dirty || store.saving){event.preventDefault();event.returnValue='';}});
-document.addEventListener('keydown',event=>{if(event.key==='/' && !event.ctrlKey && !event.metaKey && !event.altKey && !$('editor').open && !$('bookmarklet-dialog').open && !event.target.closest('input,textarea,select,[contenteditable]')){event.preventDefault();$('search').focus();}});
+$('tabs-dialog').addEventListener('cancel',event=>{event.preventDefault();closeTabsEditor();});
+$('cancel-tabs').addEventListener('click',closeTabsEditor);
+$('tabs-form').addEventListener('input',()=>{tabsDirty=true;});
+$('tabs-form').addEventListener('submit',event=>{event.preventDefault();saveTabs();});
+$('reload-tabs').addEventListener('click',()=>reload(false,true));
+$('reset-tabs').addEventListener('click',()=>{
+  for(const [id,fallback] of DEFAULT_TABS){const input=$(`tab-label-${id}`);if(input)input.value=fallback;}
+  tabsDirty=true;
+  $('tabs-error').textContent='';
+});
+populateCategoryPages();
+window.addEventListener('beforeunload',event=>{if(dirty || tabsDirty || store.saving){event.preventDefault();event.returnValue='';}});
+document.addEventListener('keydown',event=>{if(event.key==='/' && !event.ctrlKey && !event.metaKey && !event.altKey && !$('editor').open && !$('bookmarklet-dialog').open && !$('tabs-dialog').open && !event.target.closest('input,textarea,select,[contenteditable]')){event.preventDefault();$('search').focus();}});
 async function start(){
   if(admin){$('heading').textContent='管理我的收藏';$('manage').textContent='浏览收藏';$('manage').href='/';try{await store.request('/admin/api/session');allowed=true;$('admin-actions').hidden=false;$('logout').hidden=false;}catch(error){status(error.message,true);$('reauth').hidden=false;return;}}
   await reload();

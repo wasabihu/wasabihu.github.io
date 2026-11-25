@@ -1,3 +1,32 @@
+/** 默认标签页顺序与名称（未自定义时回退到此表）。 */
+export const DEFAULT_TABS = [
+  ['fragment-1', '常用'],
+  ['fragment-2', '工具'],
+  ['fragment-3', '其他'],
+  ['fragment-4', '收藏'],
+  ['fragment-6', '其他 2']
+];
+/** 解析当前文档的标签页列表，自动回退默认名称。 */
+export function resolveTabs(current) {
+  const custom = current?.tabLabels && typeof current.tabLabels === 'object' ? current.tabLabels : {};
+  return DEFAULT_TABS.map(([id, fallback]) => {
+    const candidate = typeof custom[id] === 'string' ? custom[id].trim() : '';
+    return [id, candidate ? candidate.slice(0, 24) : fallback];
+  });
+}
+/** 生成更新标签页名称后的独立草稿；全部恢复默认时省略 tabLabels 字段。 */
+export function editTabLabels(current, nextLabels) {
+  const data = structuredClone(current);
+  const tabLabels = {};
+  for (const [id, fallback] of DEFAULT_TABS) {
+    const raw = typeof nextLabels?.[id] === 'string' ? nextLabels[id].trim() : '';
+    const value = (raw || fallback).slice(0, 24);
+    if (value !== fallback) tabLabels[id] = value;
+  }
+  if (Object.keys(tabLabels).length) data.tabLabels = tabLabels;
+  else delete data.tabLabels;
+  return data;
+}
 /** 云端保存状态；仅成功回执可以替换已保存版本。 */
 export class CloudStore {
   constructor(transport = (...args) => fetch(...args)) { this.transport=transport; this.document=null; this.saving=false; }

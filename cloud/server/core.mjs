@@ -50,6 +50,15 @@ export function validateDocument(input) {
     });
   }
   const output = {categories,links};
+  if (input.tabLabels !== undefined) {
+    if (!input.tabLabels || Array.isArray(input.tabLabels) || typeof input.tabLabels !== 'object') throw new AppError(400,'标签页名称格式无效。');
+    const tabLabels = {};
+    for (const key of Object.keys(input.tabLabels)) {
+      if (forbidden.has(key) || !pages.has(key)) throw new AppError(400,'包含无效的标签页编号。');
+      tabLabels[key] = text(input.tabLabels[key], 24);
+    }
+    if (Object.keys(tabLabels).length) output.tabLabels = tabLabels;
+  }
   if (linkIds.size > 5000 || new TextEncoder().encode(JSON.stringify(output)).length > 450000) throw new AppError(400,'收藏数据过大，请先导出并整理。');
   return output;
 }
