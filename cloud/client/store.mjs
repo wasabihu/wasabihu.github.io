@@ -1,3 +1,13 @@
+/** 允许保存和展示的网址协议白名单（放行本地文件与常用桌面协议，拒绝脚本/数据协议）。 */
+export const ALLOWED_PROTOCOLS = new Set(['http:', 'https:', 'file:', 'chrome:', 'edge:', 'obsidian:', 'vscode:']);
+/** 浏览器会拦截从 https:// 页面直接跳转的本机协议，点击时自动复制地址。 */
+export const COPY_ONLY_PROTOCOLS = new Set(['file:', 'chrome:', 'edge:']);
+export function isAllowedBookmarkProtocol(protocol) {
+  return ALLOWED_PROTOCOLS.has(protocol);
+}
+export function isCopyOnlyProtocol(protocol) {
+  return COPY_ONLY_PROTOCOLS.has(protocol);
+}
 /** 默认标签页顺序与名称（未自定义时回退到此表）。 */
 export const DEFAULT_TABS = [
   ['fragment-1', '常用'],
@@ -90,14 +100,14 @@ export function nextCategoryOrder(current, page) {
   }
   return max + 1;
 }
-/** 解析一键收藏传入的 URL 参数，仅允许 http/https 链接。 */
+/** 解析一键收藏传入的 URL 参数，仅允许安全白名单协议。 */
 export function parseQuickAddParams(search) {
   const params = new URLSearchParams(search || '');
   const rawUrl = (params.get('add_url') || params.get('url') || '').trim();
   if (!rawUrl) return null;
   let parsed;
   try { parsed = new URL(rawUrl); } catch { return null; }
-  if (!['http:', 'https:'].includes(parsed.protocol)) return null;
+  if (!isAllowedBookmarkProtocol(parsed.protocol) || parsed.username || parsed.password) return null;
   const rawTitle = (params.get('add_title') || params.get('title') || '').trim();
   return {
     url: parsed.href.slice(0, 2048),
@@ -158,7 +168,7 @@ export function selectFrequentLinks(current, usageMap, limit = 8) {
       if (!link?.id || !link?.href) continue;
       let parsed;
       try { parsed = new URL(link.href); } catch { continue; }
-      if (!['http:', 'https:'].includes(parsed.protocol)) continue;
+      if (!isAllowedBookmarkProtocol(parsed.protocol)) continue;
       lookup.set(link.id, { ...link, categoryId, categoryName: categoryNames.get(categoryId) || '' });
     }
   }
@@ -172,10 +182,11 @@ export function selectFrequentLinks(current, usageMap, limit = 8) {
   ranked.sort((a, b) => b.count - a.count || b.lastUsed - a.lastUsed);
   return ranked.slice(0, limit);
 }
-/** 规范化主机名，便于把同站网址归到同一分类。 */
+/** 规范化主机名，便于把同站或同类型本地网址归到同一分类。 */
 function hostnameOf(rawUrl) {
   try {
     const parsed = new URL(rawUrl);
+    if (parsed.protocol === 'file:') return '__local_file__';
     if (!['http:', 'https:'].includes(parsed.protocol)) return '';
     return parsed.hostname.toLowerCase().replace(/^www\./, '');
   } catch { return ''; }

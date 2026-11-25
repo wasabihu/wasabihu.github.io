@@ -4,6 +4,7 @@ export class AppError extends Error {
   constructor(status, message) { super(message); this.status = status; }
 }
 const pages = new Set(['fragment-1','fragment-2','fragment-3','fragment-4','fragment-6']);
+const allowedProtocols = new Set(['http:','https:','file:','chrome:','edge:','obsidian:','vscode:']);
 const forbidden = new Set(['__proto__','prototype','constructor']);
 const keysets = new Map();
 function text(value, max, required = true) {
@@ -44,8 +45,8 @@ export function validateDocument(input) {
       linkIds.add(linkId);
       const href = text(link.href,2048);
       let url;
-      try { url = new URL(href); } catch { throw new AppError(400,'请输入完整的网址，例如 https://example.com。'); }
-      if (!['http:','https:'].includes(url.protocol) || url.username || url.password) throw new AppError(400,'网址只能使用 HTTP 或 HTTPS，不能包含账号密码。');
+      try { url = new URL(href); } catch { throw new AppError(400,'请输入完整的网址，例如 https://example.com 或 file:///...。'); }
+      if (!allowedProtocols.has(url.protocol) || url.username || url.password) throw new AppError(400,'网址仅支持 HTTP、HTTPS、file:// 及常用本地协议，且不能包含账号密码。');
       return {id:linkId,text:text(link.text,200),href,title:text(link.title,2000,false),seq:String(sequence(link.seq))};
     });
   }

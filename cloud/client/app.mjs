@@ -3,6 +3,8 @@ import {
   DEFAULT_TABS,
   resolveTabs,
   editTabLabels,
+  isAllowedBookmarkProtocol,
+  isCopyOnlyProtocol,
   editDocument,
   nextLinkOrder,
   nextCategoryOrder,
@@ -167,6 +169,37 @@ function updateDuplicateAndSuggestion(){
     hint.hidden=true;
   }
 }
+async function copyLocalUrl(text,href){
+  try{
+    await navigator.clipboard.writeText(href);
+    status(`已复制「${text}」本地地址到剪贴板，在新标签页地址栏粘贴回车即可打开（浏览器禁止网页直接打开本地链接）。`);
+  }catch{
+    window.prompt('浏览器禁止网页直接打开本地链接，请复制后在新标签页粘贴打开：',href);
+  }
+}
+function bindBookmarkLink(anchor,link,protocol){
+  const copyOnly=isCopyOnlyProtocol(protocol);
+  if(copyOnly){
+    anchor.dataset.copyOnly='1';
+    anchor.title=`${link.title ? `${link.title} · ` : ''}点击复制本地路径：${link.href}`;
+  }
+  anchor.addEventListener('click',event=>{
+    trackClick(link.id);
+    if(copyOnly){
+      event.preventDefault();
+      copyLocalUrl(link.text,link.href);
+    }
+  });
+  anchor.addEventListener('auxclick',event=>{
+    if(event.button===1){
+      trackClick(link.id);
+      if(copyOnly){
+        event.preventDefault();
+        copyLocalUrl(link.text,link.href);
+      }
+    }
+  });
+}
 function renderFrequent(){
   const section=$('frequent');
   if(!section)return;
@@ -182,14 +215,14 @@ function renderFrequent(){
   list.hidden=frequentCollapsed;
   list.replaceChildren();
   for(const item of items){
+    let url;try{url=new URL(item.href);}catch{continue;}
     const anchor=element('a',item.text,'frequent-chip');
     anchor.href=item.href;
     anchor.target='_blank';
     anchor.rel='noopener noreferrer';
     anchor.title=item.title?`${item.categoryName} · ${item.title}`:`${item.categoryName} · ${item.href}`;
     anchor.dataset.bookmarkId=item.id;
-    anchor.addEventListener('click',()=>trackClick(item.id));
-    anchor.addEventListener('auxclick',event=>{if(event.button===1)trackClick(item.id);});
+    bindBookmarkLink(anchor,item,url.protocol);
     list.append(anchor);
   }
 }
@@ -248,10 +281,9 @@ function render(){
       if(query && !firstMarked){item.classList.add('top-match');firstMarked=true;}
       const anchor=element('a',link.text);
       let url;try{url=new URL(link.href)}catch{continue}
-      if(!['http:','https:'].includes(url.protocol))continue;
+      if(!isAllowedBookmarkProtocol(url.protocol))continue;
       anchor.href=link.href;anchor.target='_blank';anchor.rel='noopener noreferrer';anchor.title=link.title || link.href;anchor.dataset.bookmarkId=link.id;
-      anchor.addEventListener('click',()=>trackClick(link.id));
-      anchor.addEventListener('auxclick',event=>{if(event.button===1)trackClick(link.id);});
+      bindBookmarkLink(anchor,link,url.protocol);
       item.append(anchor);
       if(allowed){const edit=button('编辑',()=>openLink(link,category.id));edit.setAttribute('aria-label',`编辑 ${link.text}`);item.append(edit);}
       grid.append(item);
@@ -413,9 +445,13 @@ $('search').addEventListener('keydown',event=>{
     const first=$('collections').querySelector('.bookmark > a');
     if(!first)return;
     event.preventDefault();
-    window.open(first.href,'_blank','noopener,noreferrer');
     trackClick(first.dataset.bookmarkId);
-    status(`已打开「${first.textContent}」。`);
+    if(first.dataset.copyOnly==='1'){
+      copyLocalUrl(first.textContent,first.href);
+    }else{
+      window.open(first.href,'_blank','noopener,noreferrer');
+      status(`已打开「${first.textContent}」。`);
+    }
   }else if(event.key==='Escape'){
     if($('search').value){event.preventDefault();$('search').value='';render();}
     else{$('search').blur();}
